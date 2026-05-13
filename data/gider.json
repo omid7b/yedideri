@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1777307540910,
+    "tarih": "27.04.2026",
+    "aciklama": "SGK",
+    "kategori": "Vergi / SGK",
+    "tutar": 15400.0,
+    "not": "MURAT",
+    "created": "2026-04-27 19:32:20"
+  },
+  {
+    "id": 1777298085013,
+    "tarih": "27.04.2026",
+    "aciklama": "DERİ MOR SİYAH",
+    "kategori": "Deri Alimi",
+    "tutar": 5000.0,
+    "not": "",
+    "created": "2026-04-27 16:54:45"
+  },
+  {
+    "id": 1777024605159,
+    "tarih": "24.04.2026",
+    "aciklama": "الاله",
+    "kategori": "Iscilik / Maas",
+    "tutar": 4000.0,
+    "not": "",
+    "created": "2026-04-24 12:56:45"
+  },
+  {
+    "id": 1776437169788,
+    "tarih": "17.04.2026",
+    "aciklama": "serbest",
+    "kategori": "Malzeme",
+    "tutar": 738.0,
+    "not": "",
+    "created": "2026-04-17 17:46:09"
+  },
+  {
+    "id": 1776437138668,
+    "tarih": "17.04.2026",
+    "aciklama": "cihan",
+    "kategori": "Deri Alimi",
+    "tutar": 6139.0,
+    "not": "",
+    "created": "2026-04-17 17:45:38"
+  },
+  {
+    "id": 1776437109747,
+    "tarih": "17.04.2026",
+    "aciklama": "شفاف",
+    "kategori": "Malzeme",
+    "tutar": 510.0,
+    "not": "",
+    "created": "2026-04-17 17:45:09"
+  },
+  {
+    "id": 1776437062612,
+    "tarih": "17.04.2026",
+    "aciklama": "الاله",
+    "kategori": "Iscilik / Maas",
+    "tutar": 3200.0,
+    "not": "",
+    "created": "2026-04-17 17:44:22"
+  },
+  {
+    "id": 1776094972475,
+    "tarih": "13.04.2026",
+    "aciklama": "ax arez",
+    "kategori": "Diger",
+    "tutar": 350.0,
+    "not": "",
+    "created": "2026-04-13 18:42:58"
+  },
+  {
+    "id": 1776093559280,
+    "tarih": "13.04.2026",
+    "aciklama": "الاله",
+    "kategori": "Iscilik / Maas",
+    "tutar": 2400.0,
+    "not": "",
+    "created": "2026-04-13 18:19:19"
+  },
+  {
+    "id": 1775718064773,
+    "tarih": "09.04.2026",
+    "aciklama": "ahmet cakır",
+    "kategori": "Iscilik / Maas",
+    "tutar": 1000.0,
+    "not": "mohasebecı",
+    "created": "2026-04-09 10:01:04"
+  },
+  {
+    "id": 1775550003980,
+    "tarih": "07.04.2026",
+    "aciklama": "dukan",
+    "kategori": "Kira",
+    "tutar": 13000.0,
+    "not": "",
+    "created": "2026-04-07 11:20:03"
+  },
+  {
+    "id": 1775412344302,
+    "tarih": "05.04.2026",
+    "aciklama": "su",
+    "kategori": "Elektrik / Su / Dogalgaz",
+    "tutar": 152.0,
+    "not": "",
+    "created": "2026-04-05 21:05:44"
+  },
+  {
+    "id": 1775412323677,
+    "tarih": "05.04.2026",
+    "aciklama": "osb",
+    "kategori": "Elektrik / Su / Dogalgaz",
+    "tutar": 2300.0,
+    "not": "bargh",
+    "created": "2026-04-05 21:05:23"
+  },
+  {
+    "id": 1775229099569,
+    "tarih": "03.04.2026",
+    "aciklama": "arez",
+    "kategori": "Iscilik / Maas",
+    "tutar": 2600.0,
+    "not": "",
+    "created": "2026-04-03 18:11:39"
+  },
+  {
+    "id": 1775228482689,
+    "tarih": "03.04.2026",
+    "aciklama": "lale",
+    "kategori": "Iscilik / Maas",
+    "tutar": 2400.0,
+    "not": "lale",
+    "created": "2026-04-03 18:01:22"
+  },
+  {
+    "id": 1775222839195,
+    "tarih": "03.04.2026",
+    "aciklama": "akol",
+    "kategori": "Deri Alimi",
+    "tutar": 4450.0,
+    "not": "crazy deri",
+    "created": "2026-04-03 16:27:19"
+  },
+  {
+    "id": 1775124805220,
+    "tarih": "02.04.2026",
+    "aciklama": "vergi",
+    "kategori": "Vergi / SGK",
+    "tutar": 800.0,
+    "not": "vergi",
+    "created": "2026-04-02 13:13:25"
+  },
+  {
+    "id": 1775124371621,
+    "tarih": "02.04.2026",
+    "aciklama": "101",
+    "kategori": "Diger",
+    "tutar": 250.0,
+    "not": "tokhmorgh",
+    "created": "2026-04-02 13:06:11"
+  },
+  {
+    "id": 1775124325581,
+    "tarih": "01.04.2026",
+    "aciklama": "suet",
+    "kategori": "Deri Alimi",
+    "tutar": 1200.0,
+    "not": "chechel",
+    "created": "2026-04-02 13:05:25"
+  },
+  {
+    "id": 1775124297301,
+    "tarih": "01.04.2026",
+    "aciklama": "cihan",
+    "kategori": "Deri Alimi",
+    "tutar": 1900.0,
+    "not": "siyah",
+    "created": "2026-04-02 13:04:57"
+  }
+]

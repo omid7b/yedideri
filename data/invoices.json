@@ -1,0 +1,645 @@
+[
+  {
+    "customer_id": "C20260310142621",
+    "items": [
+      {
+        "code": "c15",
+        "name": "",
+        "desc": "",
+        "qty": 25.0,
+        "price": 580.0
+      },
+      {
+        "code": "c15",
+        "desc": "numune",
+        "qty": 1.0,
+        "price": 1500.0
+      },
+      {
+        "code": "borç",
+        "name": "",
+        "desc": "",
+        "qty": 1.0,
+        "price": 480.0
+      }
+    ],
+    "discount": "0",
+    "paid": "16570.0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202603-0001",
+    "date": "2026-03-10",
+    "payments": [
+      {
+        "tarih": "17.04.2026 10:20",
+        "tutar": 4470.0,
+        "not": ""
+      },
+      {
+        "tarih": "24.04.2026 11:23",
+        "tutar": 4500.0,
+        "not": ""
+      },
+      {
+        "tarih": "30.04.2026 16:06",
+        "tutar": 2600.0,
+        "not": ""
+      }
+    ]
+  },
+  {
+    "customer_id": "C20260316122726",
+    "items": [
+      {
+        "code": "c",
+        "name": "cüzdan",
+        "desc": "cüzdan",
+        "qty": 142.0,
+        "price": 250.0
+      },
+      {
+        "code": "c1",
+        "name": "numune",
+        "desc": "numune",
+        "qty": 3.0,
+        "price": 666.666
+      }
+    ],
+    "discount": "2000",
+    "paid": "15000",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202603-0002",
+    "date": "2026-03-16"
+  },
+  {
+    "customer_id": "C20260317111222",
+    "items": [
+      {
+        "code": "o02",
+        "name": "Mini Makyaj Çantası",
+        "desc": "Mini Makyaj Çantası",
+        "qty": 50.0,
+        "price": 210.0
+      },
+      {
+        "code": "0",
+        "name": "klişe",
+        "desc": "klişe",
+        "qty": 1.0,
+        "price": 600.0
+      },
+      {
+        "code": "1",
+        "name": "baskı",
+        "desc": "baskı",
+        "qty": 50.0,
+        "price": 5.0
+      }
+    ],
+    "discount": "0",
+    "paid": "2600",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202603-0003",
+    "date": "2026-03-17"
+  },
+  {
+    "customer_id": "C20260322152217",
+    "items": [
+      {
+        "code": "cengız",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 64.0,
+        "price": 8.0
+      },
+      {
+        "code": "h",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 32.0,
+        "price": 8.0
+      },
+      {
+        "code": "b",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 36.0,
+        "price": 8.0
+      },
+      {
+        "code": "taban",
+        "name": "numare",
+        "desc": "numare",
+        "qty": 20.0,
+        "price": 8.0
+      },
+      {
+        "code": "loro piana",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 560.0,
+        "price": 8.0
+      },
+      {
+        "code": "h",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 24.0,
+        "price": 8.0
+      },
+      {
+        "code": "triko",
+        "name": "triko",
+        "desc": "triko",
+        "qty": 5.0,
+        "price": 20.0
+      },
+      {
+        "code": "Salvodore ferregamo",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 48.0,
+        "price": 8.0
+      },
+      {
+        "code": "FF",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 50.0,
+        "price": 8.0
+      },
+      {
+        "code": "armani",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 59.0,
+        "price": 8.0
+      },
+      {
+        "code": "50WAY",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 10.0,
+        "price": 8.0
+      },
+      {
+        "code": "p",
+        "name": "mature",
+        "desc": "mature",
+        "qty": 24.0,
+        "price": 8.0
+      },
+      {
+        "code": "b11",
+        "name": "b11",
+        "desc": "b11",
+        "qty": 1.0,
+        "price": 750.0
+      },
+      {
+        "code": "mature",
+        "name": "rinaldi",
+        "desc": "rinaldi",
+        "qty": 30.0,
+        "price": 8.0
+      },
+      {
+        "code": "derimod",
+        "name": "derimod",
+        "desc": "derimod",
+        "qty": 24.0,
+        "price": 8.0
+      },
+      {
+        "code": "1",
+        "name": "KARAN MEN",
+        "desc": "KARAN MEN",
+        "qty": 7.0,
+        "price": 8.0
+      },
+      {
+        "code": "Kalıp",
+        "name": "Kalıp",
+        "desc": "Kalıp",
+        "qty": 25.0,
+        "price": 30.0
+      }
+    ],
+    "discount": "0",
+    "paid": "4600.0",
+    "payment": "Nakit",
+    "status": "kismi",
+    "currency": "TL",
+    "notes": "",
+    "id": "YD-202603-0004",
+    "date": "2026-03-22"
+  },
+  {
+    "customer_id": "C20260322210209",
+    "items": [
+      {
+        "code": "0",
+        "name": "pet",
+        "desc": "pet",
+        "qty": 27.0,
+        "price": 500.0
+      },
+      {
+        "code": "b15",
+        "name": "hadsun Çanta",
+        "desc": "hadsun Çanta",
+        "qty": 1.0,
+        "price": 2500.0
+      },
+      {
+        "code": "b14",
+        "name": "çanta",
+        "desc": "çanta",
+        "qty": 1.0,
+        "price": 950.0
+      },
+      {
+        "code": "0",
+        "name": "anahtarlık",
+        "desc": "anahtarlık",
+        "qty": 11.0,
+        "price": 200.0
+      }
+    ],
+    "discount": "0",
+    "paid": "16000.0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202603-0005",
+    "date": "2026-03-22"
+  },
+  {
+    "customer_id": "C20260316122726",
+    "items": [
+      {
+        "code": "1",
+        "name": "vintage",
+        "desc": "vintage",
+        "qty": 180.0,
+        "price": 270.0
+      },
+      {
+        "code": "2",
+        "name": "siyah",
+        "desc": "siyah",
+        "qty": 125.0,
+        "price": 250.0
+      }
+    ],
+    "discount": "0",
+    "paid": "78600",
+    "payment": "Nakit",
+    "status": "kismi",
+    "notes": "",
+    "id": "YD-202604-0006",
+    "date": "2026-04-03"
+  },
+  {
+    "customer_id": "C20260409183354",
+    "items": [
+      {
+        "code": "a02",
+        "name": "Klasik Deri Anahtarlık – Erkek Kadın Fermuarlı Araba Anahtarı Kılıfı",
+        "desc": "Klasik Deri Anahtarlık – Erkek Kadın Fermuarlı Araba Anahtarı Kılıfı",
+        "qty": 6.0,
+        "price": 300.0
+      },
+      {
+        "code": "a07",
+        "name": "anahtarlık El yapımı",
+        "desc": "anahtarlık El yapımı",
+        "qty": 4.0,
+        "price": 450.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202604-0007",
+    "date": "2026-04-09"
+  },
+  {
+    "customer_id": "C20260414141356",
+    "items": [
+      {
+        "code": "o13",
+        "name": "Kişiye Özel Resimli Anahtarlık",
+        "desc": "Kişiye Özel Resimli Anahtarlık",
+        "qty": 345.0,
+        "price": 100.0
+      },
+      {
+        "code": "k125",
+        "name": "İsim gravürü",
+        "desc": "İsim gravürü",
+        "qty": 345.0,
+        "price": 5.0
+      },
+      {
+        "code": "254p",
+        "name": "hediye paketi",
+        "desc": "hediye paketi",
+        "qty": 345.0,
+        "price": 15.0
+      }
+    ],
+    "discount": "1725",
+    "paid": "3500.0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "TR72 0001 0026 4694 4486 7350 04\nOmid Haftbaradaran Esfahani",
+    "id": "YD-202604-0008",
+    "date": "2026-04-14"
+  },
+  {
+    "customer_id": "C20260420183800",
+    "items": [
+      {
+        "code": "d1",
+        "name": "Indiana",
+        "desc": "Indiana",
+        "qty": 20.0,
+        "price": 30.0
+      },
+      {
+        "code": "d2",
+        "name": "Indiana Large",
+        "desc": "Indiana Large",
+        "qty": 20.0,
+        "price": 45.0
+      },
+      {
+        "code": "d3",
+        "name": "Mini Laptop",
+        "desc": "Mini Laptop",
+        "qty": 21.0,
+        "price": 53.0
+      },
+      {
+        "code": "d4",
+        "name": "Travel Bag",
+        "desc": "Travel Bag",
+        "qty": 24.0,
+        "price": 39.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "beklemede",
+    "currency": "USD",
+    "notes": "",
+    "id": "YD-202604-0009",
+    "date": "2026-04-20"
+  },
+  {
+    "customer_id": "C20260310142621",
+    "items": [
+      {
+        "code": "c15",
+        "name": "c15",
+        "desc": "c15",
+        "qty": 50.0,
+        "price": 680.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "beklemede",
+    "notes": "",
+    "id": "YD-202604-0010",
+    "date": "2026-04-22"
+  },
+  {
+    "customer_id": "C20260409183354",
+    "items": [
+      {
+        "code": "a01",
+        "name": "anahtarlık El yapımı",
+        "desc": "anahtarlık El yapımı",
+        "qty": 5.0,
+        "price": 450.0
+      },
+      {
+        "code": "a02",
+        "name": "Klasik Deri Anahtarlık yatay",
+        "desc": "Klasik Deri Anahtarlık yatay",
+        "qty": 5.0,
+        "price": 389.0
+      },
+      {
+        "code": "a05",
+        "name": "Klasik Deri Anahtarlık dikey",
+        "desc": "Klasik Deri Anahtarlık dikey",
+        "qty": 5.0,
+        "price": 350.0
+      }
+    ],
+    "discount": "45",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "notes": "",
+    "id": "YD-202604-0011",
+    "date": "2026-04-27"
+  },
+  {
+    "customer_id": "C20260310142621",
+    "items": [
+      {
+        "code": "c02",
+        "name": "Uzun  Gerçek Deri Cüzdan",
+        "desc": "Uzun  Gerçek Deri Cüzdan",
+        "qty": 80.0,
+        "price": 270.0
+      },
+      {
+        "code": "c15",
+        "name": "c15",
+        "desc": "c15",
+        "qty": 4.0,
+        "price": 400.0
+      }
+    ],
+    "discount": "0",
+    "paid": "5500",
+    "payment": "Nakit",
+    "status": "beklemede",
+    "currency": "TL",
+    "notes": "",
+    "id": "YD-202604-0012",
+    "date": "2026-04-27"
+  },
+  {
+    "customer_id": "C20260429152714",
+    "items": [
+      {
+        "code": "c105",
+        "name": "c105",
+        "desc": "c105",
+        "qty": 5.0,
+        "price": 549.0
+      },
+      {
+        "code": "c09",
+        "name": "leopar",
+        "desc": "leopar",
+        "qty": 6.0,
+        "price": 449.0
+      },
+      {
+        "code": "c17",
+        "name": "c17",
+        "desc": "c17",
+        "qty": 3.0,
+        "price": 559.0
+      },
+      {
+        "code": "o08",
+        "name": "o08",
+        "desc": "o08",
+        "qty": 3.0,
+        "price": 199.0
+      },
+      {
+        "code": "o08-12",
+        "name": "o08-12",
+        "desc": "o08-12",
+        "qty": 5.0,
+        "price": 99.0
+      },
+      {
+        "code": "c13",
+        "name": "c13",
+        "desc": "c13",
+        "qty": 3.0,
+        "price": 519.0
+      },
+      {
+        "code": "o08-14",
+        "name": "o08-14",
+        "desc": "o08-14",
+        "qty": 3.0,
+        "price": 199.0
+      },
+      {
+        "code": "c06",
+        "name": "c06",
+        "desc": "c06",
+        "qty": 11.0,
+        "price": 299.0
+      },
+      {
+        "code": "c04",
+        "name": "Kadın Fermuarlı Ve Çıtçıtlı Cüzdan",
+        "desc": "Kadın Fermuarlı Ve Çıtçıtlı Cüzdan",
+        "qty": 5.0,
+        "price": 349.0
+      },
+      {
+        "code": "k06",
+        "name": "k06",
+        "desc": "k06",
+        "qty": 4.0,
+        "price": 339.0
+      },
+      {
+        "code": "1",
+        "name": "kutu",
+        "desc": "kutu",
+        "qty": 60.0,
+        "price": 10.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "currency": "TL",
+    "notes": "",
+    "id": "YD-202604-0013",
+    "date": "2026-04-29"
+  },
+  {
+    "customer_id": "C20260505195140",
+    "items": [
+      {
+        "code": "O14",
+        "name": "Ruj kılıfı",
+        "desc": "Ruj kılıfı",
+        "qty": 101.0,
+        "price": 120.0
+      },
+      {
+        "code": "KARGO",
+        "name": "KARGO",
+        "desc": "KARGO",
+        "qty": 2.0,
+        "price": 200.0
+      },
+      {
+        "code": "Klişe",
+        "name": "Klişe",
+        "desc": "Klişe",
+        "qty": 1.0,
+        "price": 700.0
+      },
+      {
+        "code": "BASKI",
+        "name": "BASKI",
+        "desc": "BASKI",
+        "qty": 100.0,
+        "price": 8.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "odendi",
+    "currency": "TL",
+    "notes": "",
+    "id": "YD-202605-0014",
+    "date": "2026-05-05"
+  },
+  {
+    "customer_id": "C20260420130237",
+    "items": [
+      {
+        "code": "o13",
+        "name": "Deri Anahtarlık",
+        "desc": "Deri Anahtarlık",
+        "qty": 26.0,
+        "price": 100.0
+      },
+      {
+        "code": "kargo",
+        "name": "kargo",
+        "desc": "kargo",
+        "qty": 1.0,
+        "price": 200.0
+      }
+    ],
+    "discount": "0",
+    "paid": "0",
+    "payment": "Nakit",
+    "status": "beklemede",
+    "currency": "TL",
+    "notes": "",
+    "id": "YD-202605-0015",
+    "date": "2026-05-11"
+  }
+]

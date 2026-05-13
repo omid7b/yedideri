@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yedideri Yönetim</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #e8e8e0;
+    --text2: #888;
+    --text3: #555;
+    --accent: #c9a84c;
+    --accent2: #e8c96a;
+    --green: #4ec9a0;
+    --red: #e05555;
+    --orange: #e0894a;
+    --blue: #4a9fe0;
+    --radius: 8px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* Sidebar */
+  #sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-title {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  nav { flex: 1; padding: 12px 0; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all .15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(201,168,76,.07);
+  }
+  .nav-icon { width: 16px; text-align: center; opacity: .8; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* Main */
+  #main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .page-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: .5px;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .content { padding: 28px; }
+
+  /* Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.orange::before { background: var(--orange); }
+  .kpi-card.blue::before { background: var(--blue); }
+  .kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .kpi-value { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .kpi-card.green .kpi-value { color: var(--green); }
+  .kpi-card.red .kpi-value { color: var(--red); }
+  .kpi-card.orange .kpi-value { color: var(--orange); }
+  .kpi-card.blue .kpi-value { color: var(--blue); }
+
+  /* Grid layouts */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: .5px; color: var(--text2); text-transform: uppercase; }
+  .card-body { padding: 0; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    background: var(--surface2);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .badge-green  { background: rgba(78,201,160,.12); color: var(--green); }
+  .badge-orange { background: rgba(224,137,74,.12); color: var(--orange); }
+  .badge-red    { background: rgba(224,85,85,.12);  color: var(--red); }
+  .badge-blue   { background: rgba(74,159,224,.12); color: var(--blue); }
+  .badge-gold   { background: rgba(201,168,76,.12); color: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--sans);
+    font-weight: 500;
+    transition: opacity .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--accent); color: #1a1500; }
+  .btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-danger { background: rgba(224,85,85,.15); color: var(--red); border: 1px solid rgba(224,85,85,.2); }
+  .btn-success { background: rgba(78,201,160,.15); color: var(--green); border: 1px solid rgba(78,201,160,.2); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border .15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn .15s;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp .2s;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: none; opacity: 1 } }
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 18px; line-height: 1; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 22px; }
+  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .search-bar input { flex: 1; }
+
+  /* Loading */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 48px; color: var(--text3); font-size: 13px;
+    gap: 10px;
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg) } }
+
+  .empty { padding: 32px; text-align: center; color: var(--text3); font-size: 13px; }
+
+  /* Chart container */
+  .chart-wrap { padding: 16px 18px; height: 200px; }
+
+  /* Payment history inline */
+  .pay-hist { margin-top: 12px; }
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .pay-row:last-child { border: none; }
+  .pay-date { color: var(--text3); font-family: var(--mono); }
+  .pay-amt  { color: var(--green); font-family: var(--mono); font-weight: 600; }
+  .pay-note { color: var(--text2); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); transition: transform .25s; }
+    #sidebar.open { transform: none; }
+    #main { margin-left: 0; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+  }
+
+  .mono { font-family: var(--mono); }
+  .text-green { color: var(--green) }
+  .text-red   { color: var(--red) }
+  .text-gold  { color: var(--accent) }
+  .text-dim   { color: var(--text2) }
+  .text-right { text-align: right }
+  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* Gider summary */
+  .kat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 14px; }
+  .kat-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: var(--surface2); border-radius: 5px; font-size: 12px; }
+  .kat-name { color: var(--text2); }
+  .kat-val { font-family: var(--mono); color: var(--orange); }
+
+  .tab-bar { display: flex; gap: 2px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
+  .tab { padding: 7px 16px; border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--text2); transition: all .15s; }
+  .tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+
+  .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .info-row:last-child { border: none; }
+  .info-label { color: var(--text2); }
+  .info-val { font-family: var(--mono); }
+
+  /* Toplam satır */
+  .total-row td { background: rgba(201,168,76,.06); font-weight: 600; border-top: 1px solid var(--border2); }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-title">YEDİDERİ</div>
+    <div class="logo-sub">Yönetim Sistemi</div>
+  </div>
+  <nav id="nav">
+    <div class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" data-page="invoices">
+      <span class="nav-icon">▤</span> Faturalar
+    </div>
+    <div class="nav-item" data-page="customers">
+      <span class="nav-icon">◎</span> Müşteriler
+    </div>
+    <div class="nav-item" data-page="gider">
+      <span class="nav-icon">↓</span> Giderler
+    </div>
+    <div class="nav-item" data-page="products">
+      <span class="nav-icon">◧</span> Ürünler
+    </div>
+  </nav>
+  <div class="sidebar-footer" id="usd-display">USD/TRY: —</div>
+</div>
+
+<div id="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-right" id="topbar-right"></div>
+  </div>
+  <div class="content" id="content">
+    <div class="loading"><div class="spinner"></div> Yükleniyor...</div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+const API = '';  // same origin
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+const fmt = n => Number(n).toLocaleString('tr-TR', {maximumFractionDigits: 0});
+const fmtK = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : fmt(n);
+const $ = id => document.getElementById(id);
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + '/api' + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function statusBadge(s) {
+  const map = {
+    odendi:    ['✓ Ödendi',   'badge-green'],
+    beklemede: ['⏳ Beklemede','badge-orange'],
+    kismi:     ['◑ Kısmi',    'badge-gold'],
+  };
+  const [txt, cls] = map[s] || [s, 'badge-blue'];
+  return `<span class="badge ${cls}">${txt}</span>`;
+}
+
+function showModal(html) {
+  $('modal-root').innerHTML = `<div class="modal-overlay" id="overlay">${html}</div>`;
+  $('overlay').addEventListener('click', e => { if(e.target.id === 'overlay') closeModal(); });
+}
+function closeModal() { $('modal-root').innerHTML = ''; }
+
+// ── Router ───────────────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+document.getElementById('nav').addEventListener('click', e => {
+  const item = e.target.closest('.nav-item');
+  if (!item) return;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  item.classList.add('active');
+  const page = item.dataset.page;
+  currentPage = page;
+  $('page-title').textContent = item.textContent.trim();
+  $('topbar-right').innerHTML = '';
+  renderPage(page);
+});
+
+async function renderPage(page) {
+  $('content').innerHTML = '<div class="loading"><div class="spinner"></div> Yükleniyor...</div>';
+  try {
+    if (page === 'dashboard') await renderDashboard();
+    else if (page === 'invoices')  await renderInvoices();
+    else if (page === 'customers') await renderCustomers();
+    else if (page === 'gider')     await renderGider();
+    else if (page === 'products')  await renderProducts();
+  } catch(e) {
+    $('content').innerHTML = `<div class="empty">⚠ Hata: ${e.message}</div>`;
+  }
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+async function renderDashboard() {
+  const d = await api('/dashboard');
+  const s = await api('/settings');
+  $('usd-display').textContent = `USD/TRY: ${s.usd_to_tl} ₺`;
+  const { kpis, bekleyen_list, chart, stats } = d;
+
+  $('content').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Bu Ay Ciro</div>
+        <div class="kpi-value">${fmtK(kpis.ciro_ay)} ₺</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Bekleyen Tahsilat</div>
+        <div class="kpi-value">${fmtK(kpis.bekleyen)} ₺</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">Bu Ay Gider</div>
+        <div class="kpi-value">${fmtK(kpis.gider_ay)} ₺</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">Net Kâr (Tahmini)</div>
+        <div class="kpi-value">${fmtK(kpis.net_kar)} ₺</div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Aylık Ciro — Son 6 Ay</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-main"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Özet</span></div>
+        <div class="card-body" style="padding:16px">
+          <div class="info-row"><span class="info-label">Toplam Müşteri</span><span class="info-val">${stats.total_customers}</span></div>
+          <div class="info-row"><span class="info-label">Toplam Fatura</span><span class="info-val">${stats.total_invoices}</span></div>
+          <div class="info-row"><span class="info-label">Bekleyen</span><span class="info-val text-red">${fmt(kpis.bekleyen)} ₺</span></div>
+          <div class="info-row"><span class="info-label">Bu Ay Gider</span><span class="info-val text-gold">${fmt(kpis.gider_ay)} ₺</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Borçlu Müşteriler</span></div>
+      <table>
+        <thead><tr><th>Müşteri</th><th>Fatura</th><th>Durum</th><th class="text-right">Kalan Borç</th></tr></thead>
+        <tbody>
+          ${bekleyen_list.length === 0
+            ? `<tr><td colspan="4" class="empty">Bekleyen borç yok ✓</td></tr>`
+            : bekleyen_list.map(b => `
+              <tr>
+                <td>${b.name}</td>
+                <td class="mono text-dim" style="font-size:11px">${b.inv_id}</td>
+                <td>${statusBadge(b.status)}</td>
+                <td class="text-right mono text-red">${fmt(b.amt)} ₺</td>
+              </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Chart
+  new Chart($('chart-main'), {
+    type: 'bar',
+    data: {
+      labels: chart.labels,
+      datasets: [{
+        label: 'Ciro',
+        data: chart.ciro,
+        backgroundColor: 'rgba(78,201,160,.5)',
+        borderColor: '#4ec9a0',
+        borderWidth: 1,
+        borderRadius: 3,
+      },{
+        label: 'Gider',
+        data: chart.gider,
+        backgroundColor: 'rgba(224,85,85,.35)',
+        borderColor: '#e05555',
+        borderWidth: 1,
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#666', font: { size: 10 } }, grid: { color: '#1f1f1f' } },
+        y: { ticks: { color: '#666', font: { size: 10 }, callback: v => fmtK(v) }, grid: { color: '#1f1f1f' } }
+      }
+    }
+  });
+}
+
+// ── Invoices ─────────────────────────────────────────────────────────────────
+let allInvoices = [];
+async function renderInvoices() {
+  allInvoices = await api('/invoices');
+  $('topbar-right').innerHTML = `<input id="inv-search" placeholder="Ara..." style="width:180px;padding:6px 10px;font-size:12px">`;
+  $('inv-search').addEventListener('input', e => filterInvoices(e.target.value));
+  displayInvoices(allInvoices);
+}
+
+function filterInvoices(q) {
+  q = q.toLowerCase();
+  displayInvoices(allInvoices.filter(i =>
+    i.id.toLowerCase().includes(q) ||
+    (i.customer_name||'').toLowerCase().includes(q)
+  ));
+}
+
+function displayInvoices(list) {
+  $('content').innerHTML = `
+    <div class="search-bar">
+      <input id="inv-search" placeholder="Fatura no veya müşteri ara..." style="max-width:320px"
+             oninput="filterInvoices(this.value)">
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Faturalar (${list.length})</span>
+      </div>
+      <table>
+        <thead><tr><th>Fatura No</th><th>Müşteri</th><th>Tarih</th><th>Durum</th><th class="text-right">Toplam</th><th class="text-right">Kalan</th><th></th></tr></thead>
+        <tbody>
+          ${list.map(inv => `
+            <tr>
+              <td class="mono" style="font-size:12px">${inv.id}</td>
+              <td>${inv.customer_name || '—'}</td>
+              <td class="text-dim" style="font-size:12px">${inv.date ? inv.date.substring(0,10) : '—'}</td>
+              <td>${statusBadge(inv.status)}</td>
+              <td class="text-right mono">${fmt(inv.total)} ₺</td>
+              <td class="text-right mono ${inv.kalan > 0 ? 'text-red' : 'text-green'}">${fmt(inv.kalan)} ₺</td>
+              <td>
+                <button class="btn btn-ghost btn-sm" onclick="showInvoiceDetail('${inv.id}')">Detay</button>
+                ${inv.kalan > 0.01 ? `<button class="btn btn-success btn-sm" style="margin-left:4px" onclick="addPaymentModal('${inv.id}')">+ Ödeme</button>` : ''}
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function showInvoiceDetail(invId) {
+  const inv = allInvoices.find(i => i.id === invId);
+  if (!inv) return;
+
+  const paymentsHtml = (() => {
+    const pmts = inv.payments || [];
+    const paid = parseFloat(inv.paid || 0);
+    if (pmts.length === 0 && paid > 0) {
+      return `<div class="pay-row">
+        <span class="pay-date">(eski kayıt)</span>
+        <span class="pay-note text-dim">Detay yok</span>
+        <span class="pay-amt">${fmt(paid)} ₺</span>
+      </div>`;
+    }
+    if (pmts.length === 0) return '<div class="text-dim" style="font-size:12px;padding:8px 0">Ödeme kaydı yok</div>';
+    return pmts.map(p => `
+      <div class="pay-row">
+        <span class="pay-date">${p.tarih}</span>
+        <span class="pay-note">${p.not || '—'}</span>
+        <span class="pay-amt">${fmt(p.tutar)} ₺</span>
+      </div>`).join('');
+  })();
+
+  const itemsHtml = (inv.items || []).map(it => `
+    <tr>
+      <td class="mono" style="font-size:12px">${it.code}</td>
+      <td>${it.desc || it.name || '—'}</td>
+      <td class="text-right">${it.qty}</td>
+      <td class="text-right mono">${fmt(it.price)} ₺</td>
+      <td class="text-right mono">${fmt(it.qty * it.price)} ₺</td>
+    </tr>`).join('');
+
+  showModal(`<div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">${inv.id}</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        ${statusBadge(inv.status)}
+        <span class="badge badge-blue">${inv.customer_name}</span>
+        <span class="badge badge-gold">${inv.date ? inv.date.substring(0,10) : ''}</span>
+      </div>
+      <table style="margin-bottom:16px">
+        <thead><tr><th>Kod</th><th>Açıklama</th><th class="text-right">Adet</th><th class="text-right">Birim</th><th class="text-right">Tutar</th></tr></thead>
+        <tbody>${itemsHtml}</tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="4">Toplam</td>
+            <td class="text-right mono">${fmt(inv.total)} ₺</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">TOPLAM</div>
+          <div class="mono" style="font-size:15px">${fmt(inv.total)} ₺</div>
+        </div>
+        <div style="background:rgba(78,201,160,.08);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ÖDENEN</div>
+          <div class="mono text-green" style="font-size:15px">${fmt(inv.paid_total)} ₺</div>
+        </div>
+        <div style="background:rgba(224,85,85,.08);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">KALAN</div>
+          <div class="mono text-red" style="font-size:15px">${fmt(inv.kalan)} ₺</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ödeme Geçmişi</div>
+      <div class="pay-hist">${paymentsHtml}</div>
+    </div>
+    <div class="modal-footer">
+      ${inv.kalan > 0.01 ? `<button class="btn btn-success" onclick="closeModal();addPaymentModal('${inv.id}')">+ Ödeme Ekle</button>` : ''}
+      <button class="btn btn-ghost" onclick="closeModal()">Kapat</button>
+    </div>
+  </div>`);
+}
+
+async function addPaymentModal(invId) {
+  const inv = allInvoices.find(i => i.id === invId);
+  if (!inv) return;
+  showModal(`<div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Ödeme Ekle — ${invId}</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--surface2);border-radius:6px;padding:12px;margin-bottom:16px;display:flex;justify-content:space-between">
+        <span class="text-dim" style="font-size:12px">Kalan Borç</span>
+        <span class="mono text-red" style="font-size:16px;font-weight:600">${fmt(inv.kalan)} ₺</span>
+      </div>
+      <div class="form-group">
+        <label>Ödeme Tutarı (₺)</label>
+        <input type="number" id="pay-amt" value="${Math.floor(inv.kalan)}" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Açıklama (opsiyonel)</label>
+        <input type="text" id="pay-note" placeholder="Nakit, EFT, vb.">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="savePayment('${invId}')">💰 Kaydet</button>
+      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+    </div>
+  </div>`);
+}
+
+async function savePayment(invId) {
+  const amt = parseFloat($('pay-amt').value);
+  const note = $('pay-note').value;
+  if (!amt || amt <= 0) { alert('Geçerli tutar giriniz'); return; }
+  try {
+    await api(`/invoices/${invId}/payment`, { method: 'POST', body: { tutar: amt, note } });
+    closeModal();
+    await renderInvoices();
+  } catch(e) { alert('Hata: ' + e.message); }
+}
+
+// ── Customers ────────────────────────────────────────────────────────────────
+async function renderCustomers() {
+  const customers = await api('/customers');
+  $('content').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Müşteriler (${customers.length})</span>
+      </div>
+      <table>
+        <thead><tr><th>Ad</th><th>Telefon</th><th>Şehir</th><th>Platform</th><th class="text-right">Fatura</th><th class="text-right">Toplam Ödeme</th><th class="text-right">Borç</th></tr></thead>
+        <tbody>
+          ${customers.map(c => `
+            <tr style="cursor:pointer" onclick="showCustomerInvoices('${c.id}','${c.name}')">
+              <td style="font-weight:500">${c.name}</td>
+              <td class="mono text-dim" style="font-size:12px">${c.phone || '—'}</td>
+              <td class="text-dim" style="font-size:12px">${c.city || '—'}</td>
+              <td>${c.platform ? `<span class="badge badge-blue">${c.platform}</span>` : '—'}</td>
+              <td class="text-right mono">${c.invoice_count}</td>
+              <td class="text-right mono text-green">${fmt(c.total_paid)} ₺</td>
+              <td class="text-right mono ${c.total_debt > 0 ? 'text-red' : 'text-dim'}">${fmt(c.total_debt)} ₺</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function showCustomerInvoices(cid, name) {
+  const invs = await api(`/customers/${cid}/invoices`);
+  const rows = invs.map(inv => {
+    const total = (inv.items||[]).reduce((s,i)=>s+parseFloat(i.qty)*parseFloat(i.price),0) - parseFloat(inv.discount||0);
+    const kalan = total - parseFloat(inv.paid||0);
+    return `<tr>
+      <td class="mono" style="font-size:11px">${inv.id}</td>
+      <td style="font-size:12px">${inv.date ? inv.date.substring(0,10) : '—'}</td>
+      <td>${statusBadge(inv.status)}</td>
+      <td class="text-right mono">${fmt(total)} ₺</td>
+      <td class="text-right mono ${kalan>0?'text-red':'text-green'}">${fmt(kalan)} ₺</td>
+    </tr>`;
+  }).join('');
+
+  showModal(`<div class="modal" style="width:540px">
+    <div class="modal-header">
+      <span class="modal-title">${name}</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead><tr><th>Fatura</th><th>Tarih</th><th>Durum</th><th class="text-right">Toplam</th><th class="text-right">Kalan</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" class="empty">Fatura yok</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Kapat</button></div>
+  </div>`);
+}
+
+// ── Gider ────────────────────────────────────────────────────────────────────
+let allGider = [];
+const KATEGORILER = ['Deri Alımı','İşçilik / Maaş','Kira','Malzeme','Vergi / SGK','Kargo / Lojistik','Pazarlama','Elektrik / Su / Doğalgaz','Diğer'];
+
+async function renderGider() {
+  allGider = await api('/gider');
+  $('topbar-right').innerHTML = `<button class="btn btn-primary btn-sm" onclick="addGiderModal()">+ Gider Ekle</button>`;
+
+  // Category totals
+  const katTotals = {};
+  allGider.forEach(g => {
+    katTotals[g.kategori] = (katTotals[g.kategori]||0) + parseFloat(g.tutar||0);
+  });
+  const totalGider = Object.values(katTotals).reduce((a,b)=>a+b,0);
+
+  const katHtml = Object.entries(katTotals)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,v]) => `<div class="kat-item"><span class="kat-name">${k}</span><span class="kat-val">${fmt(v)} ₺</span></div>`)
+    .join('');
+
+  $('content').innerHTML = `
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Kategoriye Göre</span></div>
+        <div class="kat-grid">${katHtml}</div>
+        <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px">
+          <span class="text-dim">Toplam</span>
+          <span class="mono text-orange" style="font-weight:600">${fmt(totalGider)} ₺</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Son Giderler</span></div>
+        <table>
+          <tbody>
+            ${allGider.slice(0,6).map(g=>`
+              <tr>
+                <td style="font-size:11px" class="mono text-dim">${g.tarih}</td>
+                <td style="font-size:12px">${g.aciklama}</td>
+                <td><span class="badge badge-orange" style="font-size:10px">${g.kategori}</span></td>
+                <td class="text-right mono text-orange">${fmt(g.tutar)} ₺</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Tüm Giderler (${allGider.length})</span>
+        <button class="btn btn-primary btn-sm" onclick="addGiderModal()">+ Ekle</button>
+      </div>
+      <table>
+        <thead><tr><th>Tarih</th><th>Açıklama</th><th>Kategori</th><th>Not</th><th class="text-right">Tutar</th><th></th></tr></thead>
+        <tbody>
+          ${allGider.map(g=>`
+            <tr>
+              <td class="mono" style="font-size:11px">${g.tarih}</td>
+              <td>${g.aciklama}</td>
+              <td><span class="badge badge-orange" style="font-size:10px">${g.kategori}</span></td>
+              <td class="text-dim" style="font-size:11px">${g.not||'—'}</td>
+              <td class="text-right mono text-orange">${fmt(g.tutar)} ₺</td>
+              <td><button class="btn btn-danger btn-sm" onclick="deleteGider(${g.id})">✕</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function addGiderModal() {
+  const today = new Date().toLocaleDateString('tr-TR');
+  const opts = KATEGORILER.map(k=>`<option>${k}</option>`).join('');
+  showModal(`<div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Gider Ekle</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Tarih</label>
+        <input id="g-tarih" value="${today}" placeholder="GG.AA.YYYY">
+      </div>
+      <div class="form-group">
+        <label>Açıklama</label>
+        <input id="g-aciklama" placeholder="Gider açıklaması">
+      </div>
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="g-kat">${opts}</select>
+      </div>
+      <div class="form-group">
+        <label>Tutar (₺)</label>
+        <input id="g-tutar" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Not (opsiyonel)</label>
+        <input id="g-not" placeholder="">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveGider()">Kaydet</button>
+      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+    </div>
+  </div>`);
+}
+
+async function saveGider() {
+  const body = {
+    tarih: $('g-tarih').value,
+    aciklama: $('g-aciklama').value,
+    kategori: $('g-kat').value,
+    tutar: parseFloat($('g-tutar').value),
+    note: $('g-not').value,
+  };
+  if (!body.aciklama || !body.tutar) { alert('Açıklama ve tutar zorunludur'); return; }
+  await api('/gider', { method: 'POST', body });
+  closeModal();
+  await renderGider();
+}
+
+async function deleteGider(id) {
+  if (!confirm('Bu gider silinsin mi?')) return;
+  await api(`/gider/${id}`, { method: 'DELETE' });
+  await renderGider();
+}
+
+// ── Products ─────────────────────────────────────────────────────────────────
+async function renderProducts() {
+  const products = await api('/products');
+  const s = await api('/settings');
+  $('content').innerHTML = `
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <input id="p-search" placeholder="Ürün kodu ara..." style="max-width:220px"
+             oninput="filterProducts(this.value)">
+      <span class="text-dim" style="font-size:12px">${products.length} ürün · USD/TRY: <span class="text-gold">${s.usd_to_tl}</span></span>
+    </div>
+    <div class="card" id="products-table">
+      <table>
+        <thead><tr><th>Kod</th><th>Alan (dm²)</th><th>Süre</th><th class="text-right">Maliyet</th><th class="text-right">Satış</th><th class="text-right">Trendyol</th><th></th></tr></thead>
+        <tbody id="products-body">
+          ${products.map(p => {
+            const area = ((parseFloat(p.len)*parseFloat(p.wid))/100).toFixed(1);
+            return `<tr data-code="${p.code.toLowerCase()}">
+              <td class="mono" style="font-weight:600">${p.code}</td>
+              <td class="mono text-dim">${area}</td>
+              <td class="mono text-dim">${p.time} dk</td>
+              <td class="text-right mono">${p.base_cost ? fmt(p.base_cost) : '—'} ₺</td>
+              <td class="text-right mono text-green">${p.sales_price ? fmt(p.sales_price) : '—'} ₺</td>
+              <td class="text-right mono text-gold">${p.trendyol_price ? fmt(p.trendyol_price) : '—'} ₺</td>
+              <td><a href="${p.url||'#'}" target="_blank" class="btn btn-ghost btn-sm" ${!p.url?'style="opacity:.3;pointer-events:none"':''}>↗</a></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function filterProducts(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#products-body tr').forEach(tr => {
+    tr.style.display = tr.dataset.code.includes(q) ? '' : 'none';
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+renderPage('dashboard');
+</script>
+</body>
+</html>

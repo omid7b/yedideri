@@ -1,0 +1,20 @@
+{
+  "usd_to_tl": 45.39,
+  "leather_price": 0.2,
+  "minute_cost": 10.0,
+  "waste": 0.5,
+  "cargo": 100.0,
+  "pack": 20.0,
+  "tax": 10.0,
+  "comm": 5.0,
+  "t1_limit": 5.0,
+  "t1_margin": 2.0,
+  "t2_limit": 50.0,
+  "t2_margin": 1.8,
+  "t3_limit": 200.0,
+  "t3_margin": 1.5,
+  "t4_margin": 1.0,
+  "usd_remind_days": 3,
+  "last_usd_remind": "2026-05-11",
+  "dark_mode": true
+}

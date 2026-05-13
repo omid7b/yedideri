@@ -1,0 +1,53 @@
+{
+  "C9-Kırmızı": {
+    "adet": 6,
+    "min_stok": 3,
+    "urun_adi": "C9"
+  },
+  "A2-Kırmızı": {
+    "urun_adi": "A2",
+    "adet": 1,
+    "min_stok": 1
+  },
+  "C9-Siyah": {
+    "urun_adi": "C9",
+    "adet": 2,
+    "min_stok": 1
+  },
+  "B22-Kahverengi": {
+    "urun_adi": "B22",
+    "adet": 1,
+    "min_stok": 1
+  },
+  "B02-Kahverengi": {
+    "urun_adi": "B02",
+    "adet": 1,
+    "min_stok": 1
+  },
+  "C13-Turuncu": {
+    "adet": 5,
+    "min_stok": 3,
+    "urun_adi": "C13"
+  },
+  "C09-Siyah": {
+    "adet": 2,
+    "min_stok": 3,
+    "urun_adi": "C09"
+  },
+  "C09-Diğer": {
+    "adet": 2,
+    "min_stok": 3,
+    "urun_adi": "C09"
+  },
+  "C17-Siyah": {
+    "adet": 3,
+    "min_stok": 3,
+    "urun_adi": "C17"
+  },
+  "B11": {
+    "urun_adi": "B11",
+    "adet": 0,
+    "min_stok": 3,
+    "kutu": "35x20x7"
+  }
+}
