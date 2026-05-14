@@ -1,956 +1,730 @@
 <!DOCTYPE html>
-<html lang="tr" dir="ltr">
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Yedideri Yönetim</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
-
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #222;
-    --border: #2a2a2a;
-    --border2: #333;
-    --text: #e8e8e0;
-    --text2: #888;
-    --text3: #555;
-    --accent: #c9a84c;
-    --accent2: #e8c96a;
-    --green: #4ec9a0;
-    --red: #e05555;
-    --orange: #e0894a;
-    --blue: #4a9fe0;
-    --radius: 8px;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-  }
-
-  /* Sidebar */
-  #sidebar {
-    width: 220px;
-    min-height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .logo-title {
-    font-family: var(--mono);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 3px;
-    color: var(--accent);
-  }
-  .logo-sub {
-    font-size: 10px;
-    color: var(--text3);
-    margin-top: 3px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  nav { flex: 1; padding: 12px 0; }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text2);
-    transition: all .15s;
-    border-left: 2px solid transparent;
-  }
-  .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    background: rgba(201,168,76,.07);
-  }
-  .nav-icon { width: 16px; text-align: center; opacity: .8; }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--text3);
-    font-family: var(--mono);
-  }
-
-  /* Main */
-  #main {
-    margin-left: 220px;
-    flex: 1;
-    min-height: 100vh;
-  }
-
-  .topbar {
-    padding: 16px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--bg);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .page-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: .5px;
-  }
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--accent);
-  }
-
-  .content { padding: 28px; }
-
-  /* Cards */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .kpi-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .kpi-card.green::before { background: var(--green); }
-  .kpi-card.red::before { background: var(--red); }
-  .kpi-card.orange::before { background: var(--orange); }
-  .kpi-card.blue::before { background: var(--blue); }
-  .kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .kpi-value { font-family: var(--mono); font-size: 22px; font-weight: 600; }
-  .kpi-card.green .kpi-value { color: var(--green); }
-  .kpi-card.red .kpi-value { color: var(--red); }
-  .kpi-card.orange .kpi-value { color: var(--orange); }
-  .kpi-card.blue .kpi-value { color: var(--blue); }
-
-  /* Grid layouts */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .grid3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .card-title { font-size: 12px; font-weight: 600; letter-spacing: .5px; color: var(--text2); text-transform: uppercase; }
-  .card-body { padding: 0; }
-
-  /* Table */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th {
-    padding: 10px 16px;
-    text-align: left;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text3);
-    background: var(--surface2);
-    font-weight: 500;
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-
-  /* Badges */
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-family: var(--mono);
-    font-weight: 600;
-  }
-  .badge-green  { background: rgba(78,201,160,.12); color: var(--green); }
-  .badge-orange { background: rgba(224,137,74,.12); color: var(--orange); }
-  .badge-red    { background: rgba(224,85,85,.12);  color: var(--red); }
-  .badge-blue   { background: rgba(74,159,224,.12); color: var(--blue); }
-  .badge-gold   { background: rgba(201,168,76,.12); color: var(--accent); }
-
-  /* Buttons */
-  .btn {
-    padding: 8px 16px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: var(--sans);
-    font-weight: 500;
-    transition: opacity .15s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn:hover { opacity: .85; }
-  .btn-primary { background: var(--accent); color: #1a1500; }
-  .btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
-  .btn-danger { background: rgba(224,85,85,.15); color: var(--red); border: 1px solid rgba(224,85,85,.2); }
-  .btn-success { background: rgba(78,201,160,.15); color: var(--green); border: 1px solid rgba(78,201,160,.2); }
-  .btn-sm { padding: 5px 10px; font-size: 11px; }
-
-  /* Form */
-  .form-group { margin-bottom: 14px; }
-  label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
-  input, select, textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 5px;
-    color: var(--text);
-    padding: 9px 12px;
-    font-size: 13px;
-    font-family: var(--sans);
-    outline: none;
-    transition: border .15s;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-  select option { background: var(--surface2); }
-
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.7);
-    z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    animation: fadeIn .15s;
-  }
-  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    width: 480px;
-    max-width: 95vw;
-    max-height: 85vh;
-    overflow-y: auto;
-    animation: slideUp .2s;
-  }
-  @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: none; opacity: 1 } }
-  .modal-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 18px; line-height: 1; }
-  .modal-close:hover { color: var(--text); }
-  .modal-body { padding: 22px; }
-  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
-
-  /* Search */
-  .search-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .search-bar input { flex: 1; }
-
-  /* Loading */
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    padding: 48px; color: var(--text3); font-size: 13px;
-    gap: 10px;
-  }
-  .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid var(--border2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg) } }
-
-  .empty { padding: 32px; text-align: center; color: var(--text3); font-size: 13px; }
-
-  /* Chart container */
-  .chart-wrap { padding: 16px 18px; height: 200px; }
-
-  /* Payment history inline */
-  .pay-hist { margin-top: 12px; }
-  .pay-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-  }
-  .pay-row:last-child { border: none; }
-  .pay-date { color: var(--text3); font-family: var(--mono); }
-  .pay-amt  { color: var(--green); font-family: var(--mono); font-weight: 600; }
-  .pay-note { color: var(--text2); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    #sidebar { transform: translateX(-100%); transition: transform .25s; }
-    #sidebar.open { transform: none; }
-    #main { margin-left: 0; }
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
-    .grid2, .grid3 { grid-template-columns: 1fr; }
-  }
-
-  .mono { font-family: var(--mono); }
-  .text-green { color: var(--green) }
-  .text-red   { color: var(--red) }
-  .text-gold  { color: var(--accent) }
-  .text-dim   { color: var(--text2) }
-  .text-right { text-align: right }
-  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-
-  /* Gider summary */
-  .kat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 14px; }
-  .kat-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: var(--surface2); border-radius: 5px; font-size: 12px; }
-  .kat-name { color: var(--text2); }
-  .kat-val { font-family: var(--mono); color: var(--orange); }
-
-  .tab-bar { display: flex; gap: 2px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; width: fit-content; }
-  .tab { padding: 7px 16px; border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--text2); transition: all .15s; }
-  .tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
-
-  .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .info-row:last-child { border: none; }
-  .info-label { color: var(--text2); }
-  .info-val { font-family: var(--mono); }
-
-  /* Toplam satır */
-  .total-row td { background: rgba(201,168,76,.06); font-weight: 600; border-top: 1px solid var(--border2); }
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#0f0f0f;--sur:#1a1a1a;--sur2:#222;--bdr:#2a2a2a;--bdr2:#333;--tx:#e8e8e0;--tx2:#888;--tx3:#555;--acc:#c9a84c;--acc2:#e8c96a;--grn:#4ec9a0;--red:#e05555;--org:#e0894a;--blu:#4a9fe0;--r:8px;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
+#sidebar{width:220px;min-height:100vh;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.logo{padding:24px 20px 20px;border-bottom:1px solid var(--bdr)}
+.logo-t{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:3px;color:var(--acc)}
+.logo-s{font-size:10px;color:var(--tx3);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+nav{flex:1;padding:12px 0}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;color:var(--tx2);transition:all .15s;border-left:2px solid transparent}
+.ni:hover{color:var(--tx);background:var(--sur2)}
+.ni.active{color:var(--acc);border-left-color:var(--acc);background:rgba(201,168,76,.07)}
+.sfooter{padding:16px 20px;border-top:1px solid var(--bdr);font-size:11px;color:var(--tx3);font-family:var(--mono)}
+#main{margin-left:220px;flex:1;min-height:100vh}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:10}
+.ptitle{font-size:14px;font-weight:500;letter-spacing:.5px}
+.tright{display:flex;align-items:center;gap:10px}
+.content{padding:28px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.g::before{background:var(--grn)}.kpi.r::before{background:var(--red)}.kpi.o::before{background:var(--org)}.kpi.b::before{background:var(--blu)}
+.kpi-l{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.kpi-v{font-family:var(--mono);font-size:22px;font-weight:600}
+.kpi.g .kpi-v{color:var(--grn)}.kpi.r .kpi-v{color:var(--red)}.kpi.o .kpi-v{color:var(--org)}.kpi.b .kpi-v{color:var(--blu)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.ch{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--tx2);text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);background:var(--sur2);font-weight:500;border-bottom:1px solid var(--bdr)}
+td{padding:11px 16px;border-bottom:1px solid var(--bdr);color:var(--tx)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:var(--mono);font-weight:600}
+.bg{background:rgba(78,201,160,.12);color:var(--grn)}.bo{background:rgba(224,137,74,.12);color:var(--org)}.br{background:rgba(224,85,85,.12);color:var(--red)}.bb{background:rgba(74,159,224,.12);color:var(--blu)}.ba{background:rgba(201,168,76,.12);color:var(--acc)}
+.btn{padding:8px 16px;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-family:var(--sans);font-weight:500;transition:opacity .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{opacity:.85}
+.btn-p{background:var(--acc);color:#1a1500}.btn-gh{background:var(--sur2);color:var(--tx2);border:1px solid var(--bdr2)}.btn-d{background:rgba(224,85,85,.15);color:var(--red);border:1px solid rgba(224,85,85,.2)}.btn-s{background:rgba(78,201,160,.15);color:var(--grn);border:1px solid rgba(78,201,160,.2)}.btn-b{background:rgba(74,159,224,.15);color:var(--blu);border:1px solid rgba(74,159,224,.2)}
+.sm{padding:5px 10px;font-size:11px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:11px;color:var(--tx3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{width:100%;background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px;font-family:var(--sans);outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+select option{background:var(--sur2)}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fi .15s}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.md{background:var(--sur);border:1px solid var(--bdr2);border-radius:10px;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;animation:su .2s}
+.md-lg{width:680px}
+@keyframes su{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.mh{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:600}
+.mx{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:20px;line-height:1}
+.mx:hover{color:var(--tx)}
+.mb{padding:22px}
+.mf{padding:14px 22px;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end}
+.load{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--tx3);font-size:13px;gap:10px}
+.spin{width:16px;height:16px;border:2px solid var(--bdr2);border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{padding:32px;text-align:center;color:var(--tx3);font-size:13px}
+.cw{padding:16px 18px;height:210px}
+.pr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.pr:last-child{border:none}
+.pd{color:var(--tx3);font-family:var(--mono)}.pa{color:var(--grn);font-family:var(--mono);font-weight:600}.pn{color:var(--tx2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ir{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.ir:last-child{border:none}
+.il{color:var(--tx2)}.iv{font-family:var(--mono)}
+.kat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:14px}
+.ki{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--sur2);border-radius:5px;font-size:12px}
+.kn{color:var(--tx2)}.kv{font-family:var(--mono);color:var(--org)}
+.mono{font-family:var(--mono)}.tg{color:var(--grn)}.tr{color:var(--red)}.ta{color:var(--acc)}.td{color:var(--tx2)}.tr2{text-align:right}
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.totrow td{background:rgba(201,168,76,.06);font-weight:600;border-top:1px solid var(--bdr2)}
+.sb{display:flex;gap:10px;margin-bottom:16px}
+.sb input{flex:1}
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:4px;width:fit-content}
+.tab{padding:7px 16px;border-radius:5px;font-size:12px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.tab.active{background:var(--sur2);color:var(--tx);border:1px solid var(--bdr2)}
+.stok-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.sk{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;text-align:center}
+.sk-l{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.sk-v{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--acc)}
 </style>
 </head>
 <body>
-
 <div id="sidebar">
-  <div class="logo">
-    <div class="logo-title">YEDİDERİ</div>
-    <div class="logo-sub">Yönetim Sistemi</div>
-  </div>
+  <div class="logo"><div class="logo-t">YEDİDERİ</div><div class="logo-s">Yönetim Sistemi</div></div>
   <nav id="nav">
-    <div class="nav-item active" data-page="dashboard">
-      <span class="nav-icon">◈</span> Dashboard
-    </div>
-    <div class="nav-item" data-page="invoices">
-      <span class="nav-icon">▤</span> Faturalar
-    </div>
-    <div class="nav-item" data-page="customers">
-      <span class="nav-icon">◎</span> Müşteriler
-    </div>
-    <div class="nav-item" data-page="gider">
-      <span class="nav-icon">↓</span> Giderler
-    </div>
-    <div class="nav-item" data-page="products">
-      <span class="nav-icon">◧</span> Ürünler
-    </div>
+    <div class="ni active" data-page="dashboard"><span>◈</span> Dashboard</div>
+    <div class="ni" data-page="invoices"><span>▤</span> Faturalar</div>
+    <div class="ni" data-page="customers"><span>◎</span> Müşteriler</div>
+    <div class="ni" data-page="gider"><span>↓</span> Giderler</div>
+    <div class="ni" data-page="products"><span>◧</span> Ürünler</div>
+    <div class="ni" data-page="stok"><span>⊡</span> Stok</div>
+    <div class="ni" data-page="teklif"><span>✦</span> Özel Teklif</div>
+    <div class="ni" data-page="print"><span>⎙</span> Baskı Merkezi</div>
+    <div class="ni" data-page="settings"><span>⚙</span> Ayarlar</div>
   </nav>
-  <div class="sidebar-footer" id="usd-display">USD/TRY: —</div>
+  <div class="sfooter" id="usd-display">USD/TRY: —</div>
 </div>
-
 <div id="main">
   <div class="topbar">
-    <div class="page-title" id="page-title">Dashboard</div>
-    <div class="topbar-right" id="topbar-right"></div>
+    <div class="ptitle" id="ptitle">Dashboard</div>
+    <div class="tright" id="tright"></div>
   </div>
-  <div class="content" id="content">
-    <div class="loading"><div class="spinner"></div> Yükleniyor...</div>
-  </div>
+  <div class="content" id="content"><div class="load"><div class="spin"></div>Yükleniyor...</div></div>
 </div>
-
-<div id="modal-root"></div>
+<div id="mroot"></div>
 
 <script>
-const API = '';  // same origin
-
-// ── Utils ────────────────────────────────────────────────────────────────────
-const fmt = n => Number(n).toLocaleString('tr-TR', {maximumFractionDigits: 0});
-const fmtK = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : fmt(n);
+const fmt = n => Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:0});
+const fmtK = n => n>=1000?(n/1000).toFixed(1)+'K':fmt(n);
 const $ = id => document.getElementById(id);
+const KATS = ['Deri Alımı','İşçilik / Maaş','Kira','Malzeme','Vergi / SGK','Kargo / Lojistik','Pazarlama','Elektrik / Su / Doğalgaz','Diğer'];
 
-async function api(path, opts = {}) {
-  const r = await fetch(API + '/api' + path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...opts,
-    body: opts.body ? JSON.stringify(opts.body) : undefined
-  });
-  if (!r.ok) throw new Error(await r.text());
+async function api(path,opts={}){
+  const r = await fetch('/api'+path,{headers:{'Content-Type':'application/json'},...opts,body:opts.body?JSON.stringify(opts.body):undefined});
+  if(!r.ok) throw new Error(await r.text());
   return r.json();
 }
-
-function statusBadge(s) {
-  const map = {
-    odendi:    ['✓ Ödendi',   'badge-green'],
-    beklemede: ['⏳ Beklemede','badge-orange'],
-    kismi:     ['◑ Kısmi',    'badge-gold'],
-  };
-  const [txt, cls] = map[s] || [s, 'badge-blue'];
-  return `<span class="badge ${cls}">${txt}</span>`;
+function sbadge(s){
+  const m={odendi:['✓ Ödendi','bg'],beklemede:['⏳ Beklemede','bo'],kismi:['◑ Kısmi','ba']};
+  const[t,c]=m[s]||[s,'bb'];return`<span class="badge ${c}">${t}</span>`;
 }
+function showM(html){$('mroot').innerHTML=`<div class="mo" id="ov">${html}</div>`;$('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeM()});}
+function closeM(){$('mroot').innerHTML='';}
+function loading(){$('content').innerHTML='<div class="load"><div class="spin"></div>Yükleniyor...</div>';}
 
-function showModal(html) {
-  $('modal-root').innerHTML = `<div class="modal-overlay" id="overlay">${html}</div>`;
-  $('overlay').addEventListener('click', e => { if(e.target.id === 'overlay') closeModal(); });
-}
-function closeModal() { $('modal-root').innerHTML = ''; }
-
-// ── Router ───────────────────────────────────────────────────────────────────
-let currentPage = 'dashboard';
-document.getElementById('nav').addEventListener('click', e => {
-  const item = e.target.closest('.nav-item');
-  if (!item) return;
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+// Router
+document.getElementById('nav').addEventListener('click',e=>{
+  const item=e.target.closest('.ni');if(!item)return;
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
   item.classList.add('active');
-  const page = item.dataset.page;
-  currentPage = page;
-  $('page-title').textContent = item.textContent.trim();
-  $('topbar-right').innerHTML = '';
-  renderPage(page);
+  $('ptitle').textContent=item.textContent.trim();
+  $('tright').innerHTML='';
+  renderPage(item.dataset.page);
 });
 
-async function renderPage(page) {
-  $('content').innerHTML = '<div class="loading"><div class="spinner"></div> Yükleniyor...</div>';
-  try {
-    if (page === 'dashboard') await renderDashboard();
-    else if (page === 'invoices')  await renderInvoices();
-    else if (page === 'customers') await renderCustomers();
-    else if (page === 'gider')     await renderGider();
-    else if (page === 'products')  await renderProducts();
-  } catch(e) {
-    $('content').innerHTML = `<div class="empty">⚠ Hata: ${e.message}</div>`;
-  }
+async function renderPage(p){
+  loading();
+  try{
+    if(p==='dashboard') await renderDash();
+    else if(p==='invoices') await renderInvoices();
+    else if(p==='customers') await renderCustomers();
+    else if(p==='gider') await renderGider();
+    else if(p==='products') await renderProducts();
+    else if(p==='stok') await renderStok();
+    else if(p==='teklif') await renderTeklif();
+    else if(p==='print') renderPrint();
+    else if(p==='settings') await renderSettings();
+  }catch(e){$('content').innerHTML=`<div class="empty">⚠ Hata: ${e.message}</div>`;}
 }
 
-// ── Dashboard ────────────────────────────────────────────────────────────────
-async function renderDashboard() {
-  const d = await api('/dashboard');
-  const s = await api('/settings');
-  $('usd-display').textContent = `USD/TRY: ${s.usd_to_tl} ₺`;
-  const { kpis, bekleyen_list, chart, stats } = d;
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function renderDash(){
+  const[d,s]=await Promise.all([api('/dashboard'),api('/settings')]);
+  $('usd-display').textContent=`USD/TRY: ${s.usd_to_tl} ₺`;
+  const{kpis,bekleyen_list,chart,stats}=d;
+  $('content').innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi g"><div class="kpi-l">Bu Ay Ciro</div><div class="kpi-v">${fmtK(kpis.ciro_ay)} ₺</div></div>
+    <div class="kpi r"><div class="kpi-l">Bekleyen Tahsilat</div><div class="kpi-v">${fmtK(kpis.bekleyen)} ₺</div></div>
+    <div class="kpi o"><div class="kpi-l">Bu Ay Gider</div><div class="kpi-v">${fmtK(kpis.gider_ay)} ₺</div></div>
+    <div class="kpi b"><div class="kpi-l">Net Kâr (Tahmini)</div><div class="kpi-v">${fmtK(kpis.net_kar)} ₺</div></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="ch"><span class="ct">Aylık Ciro — Son 6 Ay</span></div><div class="cw"><canvas id="chart-m"></canvas></div></div>
+    <div class="card"><div class="ch"><span class="ct">Özet</span></div><div style="padding:16px">
+      <div class="ir"><span class="il">Toplam Müşteri</span><span class="iv">${stats.total_customers}</span></div>
+      <div class="ir"><span class="il">Toplam Fatura</span><span class="iv">${stats.total_invoices}</span></div>
+      <div class="ir"><span class="il">Bekleyen Borç</span><span class="iv tr">${fmt(kpis.bekleyen)} ₺</span></div>
+      <div class="ir"><span class="il">Bu Ay Gider</span><span class="iv ta">${fmt(kpis.gider_ay)} ₺</span></div>
+    </div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Borçlu Müşteriler</span></div>
+  <table><thead><tr><th>Müşteri</th><th>Fatura</th><th>Durum</th><th class="tr2">Kalan Borç</th></tr></thead>
+  <tbody>${bekleyen_list.length?bekleyen_list.map(b=>`<tr>
+    <td style="font-weight:500">${b.name}</td>
+    <td class="mono td" style="font-size:11px">${b.inv_id}</td>
+    <td>${sbadge(b.status)}</td>
+    <td class="tr2 mono tr">${fmt(b.amt)} ₺</td>
+  </tr>`).join(''):'<tr><td colspan="4" class="empty">Bekleyen borç yok ✓</td></tr>'}</tbody>
+  </table></div>`;
+  new Chart($('chart-m'),{type:'bar',data:{labels:chart.labels,datasets:[
+    {label:'Ciro',data:chart.ciro,backgroundColor:'rgba(78,201,160,.5)',borderColor:'#4ec9a0',borderWidth:1,borderRadius:3},
+    {label:'Gider',data:chart.gider,backgroundColor:'rgba(224,85,85,.35)',borderColor:'#e05555',borderWidth:1,borderRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#888',font:{size:11}}}},
+    scales:{x:{ticks:{color:'#666',font:{size:10}},grid:{color:'#1f1f1f'}},
+            y:{ticks:{color:'#666',font:{size:10},callback:v=>fmtK(v)},grid:{color:'#1f1f1f'}}}}});
+}
 
-  $('content').innerHTML = `
-    <div class="kpi-grid">
-      <div class="kpi-card green">
-        <div class="kpi-label">Bu Ay Ciro</div>
-        <div class="kpi-value">${fmtK(kpis.ciro_ay)} ₺</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">Bekleyen Tahsilat</div>
-        <div class="kpi-value">${fmtK(kpis.bekleyen)} ₺</div>
-      </div>
-      <div class="kpi-card orange">
-        <div class="kpi-label">Bu Ay Gider</div>
-        <div class="kpi-value">${fmtK(kpis.gider_ay)} ₺</div>
-      </div>
-      <div class="kpi-card blue">
-        <div class="kpi-label">Net Kâr (Tahmini)</div>
-        <div class="kpi-value">${fmtK(kpis.net_kar)} ₺</div>
-      </div>
+// ── Invoices ──────────────────────────────────────────────────────────────────
+let allInv=[];
+async function renderInvoices(){
+  allInv=await api('/invoices');
+  $('tright').innerHTML=`<button class="btn btn-p sm" onclick="newInvModal()">+ Yeni Fatura</button><input id="isrch" placeholder="Ara..." style="width:160px;padding:6px 10px;font-size:12px" oninput="filterInv(this.value)">`;
+  dispInv(allInv);
+}
+function filterInv(q){q=q.toLowerCase();dispInv(allInv.filter(i=>i.id.toLowerCase().includes(q)||(i.customer_name||'').toLowerCase().includes(q)));}
+function dispInv(list){
+  $('content').innerHTML=`<div class="card"><div class="ch"><span class="ct">Faturalar (${list.length})</span></div>
+  <table><thead><tr><th>Fatura No</th><th>Müşteri</th><th>Tarih</th><th>Durum</th><th class="tr2">Toplam</th><th class="tr2">Kalan</th><th></th></tr></thead>
+  <tbody>${list.map(inv=>`<tr>
+    <td class="mono" style="font-size:12px">${inv.id}</td>
+    <td style="font-weight:500">${inv.customer_name||'—'}</td>
+    <td class="td" style="font-size:12px">${(inv.date||'').substring(0,10)}</td>
+    <td>${sbadge(inv.status)}</td>
+    <td class="tr2 mono">${fmt(inv.total)} ₺</td>
+    <td class="tr2 mono ${inv.kalan>0.01?'tr':'tg'}">${fmt(inv.kalan)} ₺</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-gh sm" onclick="invDetail('${inv.id}')">Detay</button>
+      <button class="btn btn-b sm" onclick="printInv('${inv.id}')">⎙</button>
+      ${inv.kalan>0.01?`<button class="btn btn-s sm" onclick="addPayM('${inv.id}')">+ Ödeme</button>`:''}
+    </td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+async function invDetail(id){
+  const inv=allInv.find(i=>i.id===id);if(!inv)return;
+  const pmts=inv.payments||[];
+  const paidField=parseFloat(inv.paid||0);
+  let payHtml=pmts.length===0&&paidField>0
+    ?`<div class="pr"><span class="pd">(eski kayıt)</span><span class="pn td">Detay yok</span><span class="pa">${fmt(paidField)} ₺</span></div>`
+    :pmts.length===0?'<div class="td" style="font-size:12px;padding:8px 0">Ödeme kaydı yok</div>'
+    :pmts.map((p,i)=>`<div class="pr">
+      <span class="pd">${p.tarih}</span>
+      <span class="pn">${p.not||'—'}</span>
+      <span class="pa">${fmt(p.tutar)} ₺</span>
+      <button class="btn btn-d" style="padding:2px 7px;font-size:10px" onclick="delPay('${id}',${i})">✕</button>
+    </div>`).join('');
+  const items=(inv.items||[]).map((it,i)=>`<tr>
+    <td class="mono" style="font-size:12px">${it.code}</td>
+    <td>${it.desc||it.name||'—'}</td>
+    <td class="tr2">${it.qty}</td>
+    <td class="tr2 mono">${fmt(it.price)} ₺</td>
+    <td class="tr2 mono">${fmt(parseFloat(it.qty)*parseFloat(it.price))} ₺</td>
+    <td><button class="btn btn-d" style="padding:2px 6px;font-size:10px" onclick="removeItem('${id}',${i})">✕</button></td>
+  </tr>`).join('');
+  showM(`<div class="md"><div class="mh"><span class="mt">${id}</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${sbadge(inv.status)}<span class="badge bb">${inv.customer_name}</span><span class="badge ba">${(inv.date||'').substring(0,10)}</span></div>
+    <table style="margin-bottom:14px"><thead><tr><th>Kod</th><th>Açıklama</th><th class="tr2">Adet</th><th class="tr2">Birim</th><th class="tr2">Tutar</th><th></th></tr></thead>
+    <tbody>${items}</tbody>
+    <tfoot><tr class="totrow"><td colspan="4">Toplam</td><td class="tr2 mono">${fmt(inv.total)} ₺</td><td></td></tr></tfoot></table>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--sur2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px">TOPLAM</div><div class="mono" style="font-size:15px">${fmt(inv.total)} ₺</div></div>
+      <div style="background:rgba(78,201,160,.08);border-radius:6px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px">ÖDENEN</div><div class="mono tg" style="font-size:15px">${fmt(inv.paid_total)} ₺</div></div>
+      <div style="background:rgba(224,85,85,.08);border-radius:6px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px">KALAN</div><div class="mono tr" style="font-size:15px">${fmt(inv.kalan)} ₺</div></div>
     </div>
+    <div style="font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ödeme Geçmişi</div>
+    <div>${payHtml}</div>
+  </div>
+  <div class="mf">
+    <button class="btn btn-b sm" onclick="printInv('${id}')">⎙ Fatura Yazdır</button>
+    <button class="btn btn-b sm" onclick="printInv('${id}','USD')">⎙ USD Invoice</button>
+    ${inv.kalan>0.01?`<button class="btn btn-s" onclick="closeM();addPayM('${id}')">+ Ödeme Ekle</button>`:''}
+    <button class="btn btn-gh" onclick="closeM()">Kapat</button>
+  </div></div>`);
+}
 
-    <div class="grid3">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Aylık Ciro — Son 6 Ay</span>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-main"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Özet</span></div>
-        <div class="card-body" style="padding:16px">
-          <div class="info-row"><span class="info-label">Toplam Müşteri</span><span class="info-val">${stats.total_customers}</span></div>
-          <div class="info-row"><span class="info-label">Toplam Fatura</span><span class="info-val">${stats.total_invoices}</span></div>
-          <div class="info-row"><span class="info-label">Bekleyen</span><span class="info-val text-red">${fmt(kpis.bekleyen)} ₺</span></div>
-          <div class="info-row"><span class="info-label">Bu Ay Gider</span><span class="info-val text-gold">${fmt(kpis.gider_ay)} ₺</span></div>
-        </div>
-      </div>
+function printInv(id,currency='TL'){window.open(`/api/print/invoice/${id}?currency=${currency}`,'_blank');}
+
+async function delPay(invId,idx){
+  if(!confirm('Bu ödeme silinsin mi?'))return;
+  await api(`/invoices/${invId}/payment/${idx}`,{method:'DELETE'});
+  allInv=await api('/invoices');invDetail(invId);
+}
+async function removeItem(invId,idx){
+  if(!confirm('Bu kalem silinsin mi?'))return;
+  const inv=allInv.find(i=>i.id===invId);if(!inv)return;
+  const items=[...inv.items];items.splice(idx,1);
+  await api(`/invoices/${invId}`,{method:'PUT',body:{...inv,items}});
+  allInv=await api('/invoices');invDetail(invId);
+}
+
+async function addPayM(id){
+  const inv=allInv.find(i=>i.id===id);if(!inv)return;
+  showM(`<div class="md"><div class="mh"><span class="mt">Ödeme Ekle — ${id}</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div style="background:var(--sur2);border-radius:6px;padding:12px;margin-bottom:14px;display:flex;justify-content:space-between">
+      <span class="td" style="font-size:12px">Kalan Borç</span>
+      <span class="mono tr" style="font-size:16px;font-weight:600">${fmt(inv.kalan)} ₺</span>
     </div>
+    <div class="fg"><label>Ödeme Tutarı (₺)</label><input type="number" id="pa" value="${Math.floor(inv.kalan)}" step="0.01"></div>
+    <div class="fg"><label>Açıklama</label><input type="text" id="pn" placeholder="Nakit, EFT, vb."></div>
+  </div>
+  <div class="mf"><button class="btn btn-p" onclick="savePay('${id}')">💰 Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div>
+  </div>`);
+}
+async function savePay(id){
+  const amt=parseFloat($('pa').value),note=$('pn').value;
+  if(!amt||amt<=0){alert('Geçerli tutar girin');return;}
+  await api(`/invoices/${id}/payment`,{method:'POST',body:{tutar:amt,note}});
+  closeM();allInv=await api('/invoices');dispInv(allInv);
+}
 
-    <div class="card">
-      <div class="card-header"><span class="card-title">Borçlu Müşteriler</span></div>
-      <table>
-        <thead><tr><th>Müşteri</th><th>Fatura</th><th>Durum</th><th class="text-right">Kalan Borç</th></tr></thead>
-        <tbody>
-          ${bekleyen_list.length === 0
-            ? `<tr><td colspan="4" class="empty">Bekleyen borç yok ✓</td></tr>`
-            : bekleyen_list.map(b => `
-              <tr>
-                <td>${b.name}</td>
-                <td class="mono text-dim" style="font-size:11px">${b.inv_id}</td>
-                <td>${statusBadge(b.status)}</td>
-                <td class="text-right mono text-red">${fmt(b.amt)} ₺</td>
-              </tr>`).join('')}
-        </tbody>
-      </table>
+async function newInvModal(){
+  const customers=await api('/customers');
+  const opts=customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  showM(`<div class="md md-lg"><div class="mh"><span class="mt">Yeni Fatura</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div class="fg"><label>Müşteri</label><select id="ni-cust"><option value="">Seçin...</option>${opts}</select></div>
+    <div class="irow">
+      <div class="fg"><label>Tarih</label><input type="date" id="ni-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="fg"><label>Ödeme Yöntemi</label><select id="ni-pay"><option>Nakit</option><option>EFT/Havale</option><option>Kart</option><option>Vadeli</option></select></div>
     </div>
-  `;
-
-  // Chart
-  new Chart($('chart-main'), {
-    type: 'bar',
-    data: {
-      labels: chart.labels,
-      datasets: [{
-        label: 'Ciro',
-        data: chart.ciro,
-        backgroundColor: 'rgba(78,201,160,.5)',
-        borderColor: '#4ec9a0',
-        borderWidth: 1,
-        borderRadius: 3,
-      },{
-        label: 'Gider',
-        data: chart.gider,
-        backgroundColor: 'rgba(224,85,85,.35)',
-        borderColor: '#e05555',
-        borderWidth: 1,
-        borderRadius: 3,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#666', font: { size: 10 } }, grid: { color: '#1f1f1f' } },
-        y: { ticks: { color: '#666', font: { size: 10 }, callback: v => fmtK(v) }, grid: { color: '#1f1f1f' } }
-      }
-    }
+    <div class="fg"><label>İndirim (₺)</label><input type="number" id="ni-disc" value="0" step="0.01"></div>
+    <div class="fg"><label>Notlar</label><textarea id="ni-notes" rows="2"></textarea></div>
+    <div style="margin-top:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px">Ürün Kalemleri</span>
+      <button class="btn btn-gh sm" onclick="addItemRow()">+ Kalem Ekle</button>
+    </div>
+    <div id="items-list"></div>
+  </div>
+  <div class="mf"><button class="btn btn-p" onclick="saveNewInv()">Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div>
+  </div>`);
+  addItemRow();
+}
+let itemCount=0;
+function addItemRow(){
+  itemCount++;
+  const d=$('items-list');
+  const row=document.createElement('div');
+  row.id=`item-${itemCount}`;row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end';
+  row.innerHTML=`
+    <div><label>Kod</label><input placeholder="c09" id="ic-${itemCount}"></div>
+    <div><label>Açıklama</label><input placeholder="Açıklama" id="id-${itemCount}"></div>
+    <div><label>Adet</label><input type="number" value="1" min="1" id="iq-${itemCount}"></div>
+    <div><label>Birim Fiyat (₺)</label><input type="number" value="0" step="0.01" id="ip-${itemCount}"></div>
+    <button class="btn btn-d sm" style="margin-bottom:0" onclick="this.parentElement.remove()">✕</button>`;
+  d.appendChild(row);
+}
+async function saveNewInv(){
+  const cid=$('ni-cust').value;if(!cid){alert('Müşteri seçin');return;}
+  const items=[];
+  document.querySelectorAll('[id^="ic-"]').forEach(el=>{
+    const n=el.id.split('-')[1];
+    items.push({code:el.value,desc:$(`id-${n}`).value,qty:parseFloat($(`iq-${n}`).value)||1,price:parseFloat($(`ip-${n}`).value)||0});
   });
+  if(!items.length){alert('En az bir kalem ekleyin');return;}
+  await api('/invoices',{method:'POST',body:{customer_id:cid,items,discount:parseFloat($('ni-disc').value)||0,payment:$('ni-pay').value,notes:$('ni-notes').value,date:$('ni-date').value}});
+  closeM();await renderInvoices();
 }
 
-// ── Invoices ─────────────────────────────────────────────────────────────────
-let allInvoices = [];
-async function renderInvoices() {
-  allInvoices = await api('/invoices');
-  $('topbar-right').innerHTML = `<input id="inv-search" placeholder="Ara..." style="width:180px;padding:6px 10px;font-size:12px">`;
-  $('inv-search').addEventListener('input', e => filterInvoices(e.target.value));
-  displayInvoices(allInvoices);
+// ── Customers ─────────────────────────────────────────────────────────────────
+let allCust=[];
+async function renderCustomers(){
+  allCust=await api('/customers');
+  $('tright').innerHTML=`<button class="btn btn-p sm" onclick="newCustM()">+ Yeni Müşteri</button>`;
+  $('content').innerHTML=`<div class="card"><div class="ch"><span class="ct">Müşteriler (${allCust.length})</span></div>
+  <table><thead><tr><th>Ad</th><th>Telefon</th><th>Şehir</th><th>Platform</th><th class="tr2">Fatura</th><th class="tr2">Ödeme</th><th class="tr2">Borç</th><th></th></tr></thead>
+  <tbody>${allCust.map(c=>`<tr>
+    <td style="font-weight:500;cursor:pointer" onclick="custInv('${c.id}','${c.name}')">${c.name}</td>
+    <td class="mono td" style="font-size:12px">${c.phone||'—'}</td>
+    <td class="td" style="font-size:12px">${c.city||'—'}</td>
+    <td>${c.platform?`<span class="badge bb">${c.platform}</span>`:'—'}</td>
+    <td class="tr2 mono">${c.invoice_count}</td>
+    <td class="tr2 mono tg">${fmt(c.total_paid)} ₺</td>
+    <td class="tr2 mono ${c.total_debt>0?'tr':'td'}">${fmt(c.total_debt)} ₺</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-gh sm" onclick="editCustM('${c.id}')">Düzenle</button>
+      <button class="btn btn-d sm" onclick="delCust('${c.id}','${c.name}')">Sil</button>
+    </td>
+  </tr>`).join('')}</tbody></table></div>`;
 }
 
-function filterInvoices(q) {
-  q = q.toLowerCase();
-  displayInvoices(allInvoices.filter(i =>
-    i.id.toLowerCase().includes(q) ||
-    (i.customer_name||'').toLowerCase().includes(q)
-  ));
+function custForm(c=null){
+  return `<div class="fg"><label>Ad Soyad *</label><input id="cn" value="${c?.name||''}"></div>
+  <div class="irow">
+    <div class="fg"><label>Telefon</label><input id="cph" value="${c?.phone||''}"></div>
+    <div class="fg"><label>E-posta</label><input id="cem" value="${c?.email||''}"></div>
+  </div>
+  <div class="irow">
+    <div class="fg"><label>Şehir</label><input id="cct" value="${c?.city||''}"></div>
+    <div class="fg"><label>Platform</label><input id="cpl" value="${c?.platform||''}" placeholder="Instagram, WooCommerce..."></div>
+  </div>
+  <div class="fg"><label>Adres</label><textarea id="cad" rows="2">${c?.address||''}</textarea></div>`;
 }
-
-function displayInvoices(list) {
-  $('content').innerHTML = `
-    <div class="search-bar">
-      <input id="inv-search" placeholder="Fatura no veya müşteri ara..." style="max-width:320px"
-             oninput="filterInvoices(this.value)">
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Faturalar (${list.length})</span>
-      </div>
-      <table>
-        <thead><tr><th>Fatura No</th><th>Müşteri</th><th>Tarih</th><th>Durum</th><th class="text-right">Toplam</th><th class="text-right">Kalan</th><th></th></tr></thead>
-        <tbody>
-          ${list.map(inv => `
-            <tr>
-              <td class="mono" style="font-size:12px">${inv.id}</td>
-              <td>${inv.customer_name || '—'}</td>
-              <td class="text-dim" style="font-size:12px">${inv.date ? inv.date.substring(0,10) : '—'}</td>
-              <td>${statusBadge(inv.status)}</td>
-              <td class="text-right mono">${fmt(inv.total)} ₺</td>
-              <td class="text-right mono ${inv.kalan > 0 ? 'text-red' : 'text-green'}">${fmt(inv.kalan)} ₺</td>
-              <td>
-                <button class="btn btn-ghost btn-sm" onclick="showInvoiceDetail('${inv.id}')">Detay</button>
-                ${inv.kalan > 0.01 ? `<button class="btn btn-success btn-sm" style="margin-left:4px" onclick="addPaymentModal('${inv.id}')">+ Ödeme</button>` : ''}
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+function newCustM(){
+  showM(`<div class="md"><div class="mh"><span class="mt">Yeni Müşteri</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">${custForm()}</div>
+  <div class="mf"><button class="btn btn-p" onclick="saveCust()">Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div></div>`);
 }
-
-async function showInvoiceDetail(invId) {
-  const inv = allInvoices.find(i => i.id === invId);
-  if (!inv) return;
-
-  const paymentsHtml = (() => {
-    const pmts = inv.payments || [];
-    const paid = parseFloat(inv.paid || 0);
-    if (pmts.length === 0 && paid > 0) {
-      return `<div class="pay-row">
-        <span class="pay-date">(eski kayıt)</span>
-        <span class="pay-note text-dim">Detay yok</span>
-        <span class="pay-amt">${fmt(paid)} ₺</span>
-      </div>`;
-    }
-    if (pmts.length === 0) return '<div class="text-dim" style="font-size:12px;padding:8px 0">Ödeme kaydı yok</div>';
-    return pmts.map(p => `
-      <div class="pay-row">
-        <span class="pay-date">${p.tarih}</span>
-        <span class="pay-note">${p.not || '—'}</span>
-        <span class="pay-amt">${fmt(p.tutar)} ₺</span>
-      </div>`).join('');
-  })();
-
-  const itemsHtml = (inv.items || []).map(it => `
-    <tr>
-      <td class="mono" style="font-size:12px">${it.code}</td>
-      <td>${it.desc || it.name || '—'}</td>
-      <td class="text-right">${it.qty}</td>
-      <td class="text-right mono">${fmt(it.price)} ₺</td>
-      <td class="text-right mono">${fmt(it.qty * it.price)} ₺</td>
-    </tr>`).join('');
-
-  showModal(`<div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">${inv.id}</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        ${statusBadge(inv.status)}
-        <span class="badge badge-blue">${inv.customer_name}</span>
-        <span class="badge badge-gold">${inv.date ? inv.date.substring(0,10) : ''}</span>
-      </div>
-      <table style="margin-bottom:16px">
-        <thead><tr><th>Kod</th><th>Açıklama</th><th class="text-right">Adet</th><th class="text-right">Birim</th><th class="text-right">Tutar</th></tr></thead>
-        <tbody>${itemsHtml}</tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td colspan="4">Toplam</td>
-            <td class="text-right mono">${fmt(inv.total)} ₺</td>
-          </tr>
-        </tfoot>
-      </table>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">TOPLAM</div>
-          <div class="mono" style="font-size:15px">${fmt(inv.total)} ₺</div>
-        </div>
-        <div style="background:rgba(78,201,160,.08);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ÖDENEN</div>
-          <div class="mono text-green" style="font-size:15px">${fmt(inv.paid_total)} ₺</div>
-        </div>
-        <div style="background:rgba(224,85,85,.08);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">KALAN</div>
-          <div class="mono text-red" style="font-size:15px">${fmt(inv.kalan)} ₺</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ödeme Geçmişi</div>
-      <div class="pay-hist">${paymentsHtml}</div>
-    </div>
-    <div class="modal-footer">
-      ${inv.kalan > 0.01 ? `<button class="btn btn-success" onclick="closeModal();addPaymentModal('${inv.id}')">+ Ödeme Ekle</button>` : ''}
-      <button class="btn btn-ghost" onclick="closeModal()">Kapat</button>
-    </div>
-  </div>`);
+function editCustM(id){
+  const c=allCust.find(x=>x.id===id);if(!c)return;
+  showM(`<div class="md"><div class="mh"><span class="mt">Müşteri Düzenle</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">${custForm(c)}</div>
+  <div class="mf"><button class="btn btn-p" onclick="saveCust('${id}')">Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div></div>`);
 }
-
-async function addPaymentModal(invId) {
-  const inv = allInvoices.find(i => i.id === invId);
-  if (!inv) return;
-  showModal(`<div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Ödeme Ekle — ${invId}</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:var(--surface2);border-radius:6px;padding:12px;margin-bottom:16px;display:flex;justify-content:space-between">
-        <span class="text-dim" style="font-size:12px">Kalan Borç</span>
-        <span class="mono text-red" style="font-size:16px;font-weight:600">${fmt(inv.kalan)} ₺</span>
-      </div>
-      <div class="form-group">
-        <label>Ödeme Tutarı (₺)</label>
-        <input type="number" id="pay-amt" value="${Math.floor(inv.kalan)}" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>Açıklama (opsiyonel)</label>
-        <input type="text" id="pay-note" placeholder="Nakit, EFT, vb.">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="savePayment('${invId}')">💰 Kaydet</button>
-      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
-    </div>
-  </div>`);
+async function saveCust(id=null){
+  const name=$('cn').value;if(!name){alert('Ad zorunlu');return;}
+  const body={name,phone:$('cph').value,email:$('cem').value,city:$('cct').value,platform:$('cpl').value,address:$('cad').value};
+  if(id) await api(`/customers/${id}`,{method:'PUT',body});
+  else await api('/customers',{method:'POST',body});
+  closeM();await renderCustomers();
 }
-
-async function savePayment(invId) {
-  const amt = parseFloat($('pay-amt').value);
-  const note = $('pay-note').value;
-  if (!amt || amt <= 0) { alert('Geçerli tutar giriniz'); return; }
-  try {
-    await api(`/invoices/${invId}/payment`, { method: 'POST', body: { tutar: amt, note } });
-    closeModal();
-    await renderInvoices();
-  } catch(e) { alert('Hata: ' + e.message); }
+async function delCust(id,name){
+  if(!confirm(`"${name}" silinsin mi?`))return;
+  await api(`/customers/${id}`,{method:'DELETE'});await renderCustomers();
 }
-
-// ── Customers ────────────────────────────────────────────────────────────────
-async function renderCustomers() {
-  const customers = await api('/customers');
-  $('content').innerHTML = `
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Müşteriler (${customers.length})</span>
-      </div>
-      <table>
-        <thead><tr><th>Ad</th><th>Telefon</th><th>Şehir</th><th>Platform</th><th class="text-right">Fatura</th><th class="text-right">Toplam Ödeme</th><th class="text-right">Borç</th></tr></thead>
-        <tbody>
-          ${customers.map(c => `
-            <tr style="cursor:pointer" onclick="showCustomerInvoices('${c.id}','${c.name}')">
-              <td style="font-weight:500">${c.name}</td>
-              <td class="mono text-dim" style="font-size:12px">${c.phone || '—'}</td>
-              <td class="text-dim" style="font-size:12px">${c.city || '—'}</td>
-              <td>${c.platform ? `<span class="badge badge-blue">${c.platform}</span>` : '—'}</td>
-              <td class="text-right mono">${c.invoice_count}</td>
-              <td class="text-right mono text-green">${fmt(c.total_paid)} ₺</td>
-              <td class="text-right mono ${c.total_debt > 0 ? 'text-red' : 'text-dim'}">${fmt(c.total_debt)} ₺</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-async function showCustomerInvoices(cid, name) {
-  const invs = await api(`/customers/${cid}/invoices`);
-  const rows = invs.map(inv => {
-    const total = (inv.items||[]).reduce((s,i)=>s+parseFloat(i.qty)*parseFloat(i.price),0) - parseFloat(inv.discount||0);
-    const kalan = total - parseFloat(inv.paid||0);
-    return `<tr>
-      <td class="mono" style="font-size:11px">${inv.id}</td>
-      <td style="font-size:12px">${inv.date ? inv.date.substring(0,10) : '—'}</td>
-      <td>${statusBadge(inv.status)}</td>
-      <td class="text-right mono">${fmt(total)} ₺</td>
-      <td class="text-right mono ${kalan>0?'text-red':'text-green'}">${fmt(kalan)} ₺</td>
-    </tr>`;
+async function custInv(cid,name){
+  const invs=await api(`/customers/${cid}/invoices`);
+  const rows=invs.map(inv=>{
+    const total=(inv.items||[]).reduce((s,i)=>s+parseFloat(i.qty)*parseFloat(i.price),0)-parseFloat(inv.discount||0);
+    const kalan=Math.max(0,total-parseFloat(inv.paid||0));
+    return`<tr><td class="mono" style="font-size:11px">${inv.id}</td><td style="font-size:12px">${(inv.date||'').substring(0,10)}</td><td>${sbadge(inv.status)}</td><td class="tr2 mono">${fmt(total)} ₺</td><td class="tr2 mono ${kalan>0?'tr':'tg'}">${fmt(kalan)} ₺</td></tr>`;
   }).join('');
-
-  showModal(`<div class="modal" style="width:540px">
-    <div class="modal-header">
-      <span class="modal-title">${name}</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <table>
-        <thead><tr><th>Fatura</th><th>Tarih</th><th>Durum</th><th class="text-right">Toplam</th><th class="text-right">Kalan</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="5" class="empty">Fatura yok</td></tr>'}</tbody>
-      </table>
-    </div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Kapat</button></div>
-  </div>`);
+  showM(`<div class="md" style="width:540px"><div class="mh"><span class="mt">${name}</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb"><table><thead><tr><th>Fatura</th><th>Tarih</th><th>Durum</th><th class="tr2">Toplam</th><th class="tr2">Kalan</th></tr></thead>
+  <tbody>${rows||'<tr><td colspan="5" class="empty">Fatura yok</td></tr>'}</tbody></table></div>
+  <div class="mf"><button class="btn btn-gh" onclick="closeM()">Kapat</button></div></div>`);
 }
 
-// ── Gider ────────────────────────────────────────────────────────────────────
-let allGider = [];
-const KATEGORILER = ['Deri Alımı','İşçilik / Maaş','Kira','Malzeme','Vergi / SGK','Kargo / Lojistik','Pazarlama','Elektrik / Su / Doğalgaz','Diğer'];
+// ── Gider ─────────────────────────────────────────────────────────────────────
+let allGdr=[];
+async function renderGider(){
+  allGdr=await api('/gider');
+  $('tright').innerHTML=`<button class="btn btn-p sm" onclick="newGdrM()">+ Gider Ekle</button>`;
+  const kat={};allGdr.forEach(g=>{kat[g.kategori]=(kat[g.kategori]||0)+parseFloat(g.tutar||0);});
+  const total=Object.values(kat).reduce((a,b)=>a+b,0);
+  const katHtml=Object.entries(kat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ki"><span class="kn">${k}</span><span class="kv">${fmt(v)} ₺</span></div>`).join('');
+  $('content').innerHTML=`
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card"><div class="ch"><span class="ct">Kategoriye Göre</span></div>
+    <div class="kat-grid">${katHtml}</div>
+    <div style="padding:10px 14px;border-top:1px solid var(--bdr);display:flex;justify-content:space-between;font-size:13px">
+      <span class="td">Toplam</span><span class="mono" style="color:var(--org);font-weight:600">${fmt(total)} ₺</span>
+    </div></div>
+    <div class="card"><div class="ch"><span class="ct">Son 6 Gider</span></div>
+    <table><tbody>${allGdr.slice(0,6).map(g=>`<tr>
+      <td class="mono td" style="font-size:11px">${g.tarih}</td>
+      <td style="font-size:12px">${g.aciklama}</td>
+      <td><span class="badge bo" style="font-size:10px">${g.kategori}</span></td>
+      <td class="tr2 mono" style="color:var(--org)">${fmt(g.tutar)} ₺</td>
+    </tr>`).join('')}</tbody></table></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Tüm Giderler (${allGdr.length})</span><button class="btn btn-p sm" onclick="newGdrM()">+ Ekle</button></div>
+  <table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Kategori</th><th>Not</th><th class="tr2">Tutar</th><th></th></tr></thead>
+  <tbody>${allGdr.map(g=>`<tr>
+    <td class="mono" style="font-size:11px">${g.tarih}</td>
+    <td>${g.aciklama}</td>
+    <td><span class="badge bo" style="font-size:10px">${g.kategori}</span></td>
+    <td class="td" style="font-size:11px">${g.not||'—'}</td>
+    <td class="tr2 mono" style="color:var(--org)">${fmt(g.tutar)} ₺</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-gh sm" onclick="editGdrM(${g.id})">Düzenle</button>
+      <button class="btn btn-d sm" onclick="delGdr(${g.id})">✕</button>
+    </td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+function gdrForm(g=null){
+  const today=new Date().toLocaleDateString('tr-TR');
+  return`<div class="fg"><label>Tarih</label><input id="gt" value="${g?.tarih||today}" placeholder="GG.AA.YYYY"></div>
+  <div class="fg"><label>Açıklama *</label><input id="ga" value="${g?.aciklama||''}"></div>
+  <div class="fg"><label>Kategori</label><select id="gk">${KATS.map(k=>`<option${g?.kategori===k?' selected':''}>${k}</option>`).join('')}</select></div>
+  <div class="fg"><label>Tutar (₺) *</label><input type="number" id="gv" value="${g?.tutar||''}" step="0.01"></div>
+  <div class="fg"><label>Not</label><input id="gn" value="${g?.not||''}"></div>`;
+}
+function newGdrM(){
+  showM(`<div class="md"><div class="mh"><span class="mt">Gider Ekle</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">${gdrForm()}</div>
+  <div class="mf"><button class="btn btn-p" onclick="saveGdr()">Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div></div>`);
+}
+function editGdrM(id){
+  const g=allGdr.find(x=>x.id===id);if(!g)return;
+  showM(`<div class="md"><div class="mh"><span class="mt">Gider Düzenle</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">${gdrForm(g)}</div>
+  <div class="mf"><button class="btn btn-p" onclick="saveGdr(${id})">Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div></div>`);
+}
+async function saveGdr(id=null){
+  const a=$('ga').value,v=parseFloat($('gv').value);
+  if(!a||!v){alert('Açıklama ve tutar zorunlu');return;}
+  const body={tarih:$('gt').value,aciklama:a,kategori:$('gk').value,tutar:v,note:$('gn').value};
+  if(id) await api(`/gider/${id}`,{method:'PUT',body});
+  else await api('/gider',{method:'POST',body});
+  closeM();await renderGider();
+}
+async function delGdr(id){if(!confirm('Silinsin mi?'))return;await api(`/gider/${id}`,{method:'DELETE'});await renderGider();}
 
-async function renderGider() {
-  allGider = await api('/gider');
-  $('topbar-right').innerHTML = `<button class="btn btn-primary btn-sm" onclick="addGiderModal()">+ Gider Ekle</button>`;
+// ── Products ──────────────────────────────────────────────────────────────────
+async function renderProducts(){
+  const[products,s]=await Promise.all([api('/products'),api('/settings')]);
+  $('tright').innerHTML=`<input id="psrch" placeholder="Kod ara..." style="width:150px;padding:6px 10px;font-size:12px" oninput="filterProd(this.value)">`;
+  $('content').innerHTML=`
+  <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">
+    <span class="td" style="font-size:12px">${products.length} ürün · USD/TRY: <span class="ta">${s.usd_to_tl}</span> · Deri: <span class="ta">${s.leather_price}$/dm²</span></span>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Ürün Listesi</span></div>
+  <table><thead><tr><th>Kod</th><th>Alan dm²</th><th>Süre</th><th class="tr2">Maliyet</th><th class="tr2">Satış</th><th class="tr2">Trendyol</th><th></th></tr></thead>
+  <tbody id="pbody">${products.map(p=>{
+    const area=((parseFloat(p.len)*parseFloat(p.wid))/100).toFixed(1);
+    return`<tr data-code="${p.code.toLowerCase()}">
+      <td class="mono" style="font-weight:600">${p.code}</td>
+      <td class="mono td">${area}</td>
+      <td class="mono td">${p.time} dk</td>
+      <td class="tr2 mono">${p.base_cost?fmt(p.base_cost):'—'} ₺</td>
+      <td class="tr2 mono tg">${p.sales_price?fmt(p.sales_price):'—'} ₺</td>
+      <td class="tr2 mono ta">${p.trendyol_price?fmt(p.trendyol_price):'—'} ₺</td>
+      <td>${p.url?`<a href="${p.url}" target="_blank" class="btn btn-gh sm">↗</a>`:'—'}</td>
+    </tr>`;}).join('')}</tbody></table></div>`;
+}
+function filterProd(q){q=q.toLowerCase();document.querySelectorAll('#pbody tr').forEach(tr=>{tr.style.display=tr.dataset.code.includes(q)?'':'none';});}
 
-  // Category totals
-  const katTotals = {};
-  allGider.forEach(g => {
-    katTotals[g.kategori] = (katTotals[g.kategori]||0) + parseFloat(g.tutar||0);
-  });
-  const totalGider = Object.values(katTotals).reduce((a,b)=>a+b,0);
-
-  const katHtml = Object.entries(katTotals)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([k,v]) => `<div class="kat-item"><span class="kat-name">${k}</span><span class="kat-val">${fmt(v)} ₺</span></div>`)
-    .join('');
-
-  $('content').innerHTML = `
-    <div class="grid2" style="margin-bottom:16px">
-      <div class="card">
-        <div class="card-header"><span class="card-title">Kategoriye Göre</span></div>
-        <div class="kat-grid">${katHtml}</div>
-        <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px">
-          <span class="text-dim">Toplam</span>
-          <span class="mono text-orange" style="font-weight:600">${fmt(totalGider)} ₺</span>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Son Giderler</span></div>
-        <table>
-          <tbody>
-            ${allGider.slice(0,6).map(g=>`
-              <tr>
-                <td style="font-size:11px" class="mono text-dim">${g.tarih}</td>
-                <td style="font-size:12px">${g.aciklama}</td>
-                <td><span class="badge badge-orange" style="font-size:10px">${g.kategori}</span></td>
-                <td class="text-right mono text-orange">${fmt(g.tutar)} ₺</td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
+// ── Stok ──────────────────────────────────────────────────────────────────────
+async function renderStok(){
+  const stok=await api('/stok');
+  const entries=Object.entries(stok).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,[,v])=>s+v,0);
+  const lowCount=entries.filter(([,v])=>v<=3).length;
+  $('content').innerHTML=`
+  <div class="stok-kpi">
+    <div class="sk"><div class="sk-l">Toplam Stok</div><div class="sk-v">${total}</div></div>
+    <div class="sk"><div class="sk-l">Ürün Çeşidi</div><div class="sk-v">${entries.length}</div></div>
+    <div class="sk"><div class="sk-l">Düşük Stok (≤3)</div><div class="sk-v" style="color:var(--red)">${lowCount}</div></div>
+    <div class="sk"><div class="sk-l">En Yüksek Stok</div><div class="sk-v">${entries.length?entries[0][1]:0}</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Stok Durumu</span>
+      <button class="btn btn-p sm" onclick="stokHareketM()">+ Hareket Ekle</button>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Tüm Giderler (${allGider.length})</span>
-        <button class="btn btn-primary btn-sm" onclick="addGiderModal()">+ Ekle</button>
+    <table><thead><tr><th>Ürün/Varyant</th><th class="tr2">Stok</th><th>Durum</th></tr></thead>
+    <tbody>${entries.map(([k,v])=>`<tr>
+      <td class="mono">${k}</td>
+      <td class="tr2 mono" style="font-weight:600;color:${v<=3?'var(--red)':v<=10?'var(--org)':'var(--grn)'}">${v}</td>
+      <td>${v<=3?'<span class="badge br">Düşük</span>':v<=10?'<span class="badge bo">Az</span>':'<span class="badge bg">Normal</span>'}</td>
+    </tr>`).join('')||'<tr><td colspan="3" class="empty">Stok kaydı yok</td></tr>'}</tbody></table></div>
+    <div class="card"><div class="ch"><span class="ct">Hızlı Giriş</span></div>
+    <div style="padding:16px">
+      <div class="fg"><label>Ürün Kodu</label><input id="sk-code" placeholder="c09"></div>
+      <div class="fg"><label>Renk (opsiyonel)</label><input id="sk-renk" placeholder="Kahverengi"></div>
+      <div class="fg"><label>Adet</label><input type="number" id="sk-qty" value="1" min="1"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-s" style="flex:1" onclick="stokGiris('uretim')">+ Üretim</button>
+        <button class="btn btn-d" style="flex:1" onclick="stokGiris('satis')">− Satış</button>
       </div>
-      <table>
-        <thead><tr><th>Tarih</th><th>Açıklama</th><th>Kategori</th><th>Not</th><th class="text-right">Tutar</th><th></th></tr></thead>
-        <tbody>
-          ${allGider.map(g=>`
-            <tr>
-              <td class="mono" style="font-size:11px">${g.tarih}</td>
-              <td>${g.aciklama}</td>
-              <td><span class="badge badge-orange" style="font-size:10px">${g.kategori}</span></td>
-              <td class="text-dim" style="font-size:11px">${g.not||'—'}</td>
-              <td class="text-right mono text-orange">${fmt(g.tutar)} ₺</td>
-              <td><button class="btn btn-danger btn-sm" onclick="deleteGider(${g.id})">✕</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+    </div></div>
+  </div>`;
+}
+async function stokGiris(tip){
+  const code=$('sk-code').value.trim();if(!code){alert('Kod girin');return;}
+  const qty=parseInt($('sk-qty').value)||1;
+  const renk=$('sk-renk').value.trim();
+  try{
+    await api(`/stok/${tip}`,{method:'POST',body:{code,renk,qty}});
+    await renderStok();
+  }catch(e){alert('Hata: '+e.message);}
+}
+async function stokHareketM(){
+  showM(`<div class="md"><div class="mh"><span class="mt">Stok Hareketi</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div class="fg"><label>Ürün Kodu</label><input id="sh-code" placeholder="c09"></div>
+    <div class="fg"><label>Renk (opsiyonel)</label><input id="sh-renk" placeholder="Kahverengi"></div>
+    <div class="fg"><label>Adet</label><input type="number" id="sh-qty" value="1" min="1"></div>
+  </div>
+  <div class="mf">
+    <button class="btn btn-s" onclick="saveStokM('uretim')">+ Üretim</button>
+    <button class="btn btn-d" onclick="saveStokM('satis')">− Satış</button>
+    <button class="btn btn-gh" onclick="closeM()">İptal</button>
+  </div></div>`);
+}
+async function saveStokM(tip){
+  const code=$('sh-code').value.trim();if(!code){alert('Kod girin');return;}
+  const qty=parseInt($('sh-qty').value)||1;const renk=$('sh-renk').value.trim();
+  try{await api(`/stok/${tip}`,{method:'POST',body:{code,renk,qty}});closeM();await renderStok();}
+  catch(e){alert('Hata: '+e.message);}
 }
 
-function addGiderModal() {
-  const today = new Date().toLocaleDateString('tr-TR');
-  const opts = KATEGORILER.map(k=>`<option>${k}</option>`).join('');
-  showModal(`<div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Gider Ekle</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Tarih</label>
-        <input id="g-tarih" value="${today}" placeholder="GG.AA.YYYY">
+// ── Özel Teklif ───────────────────────────────────────────────────────────────
+async function renderTeklif(){
+  const s=await api('/settings');
+  $('content').innerHTML=`
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Teklif Hesapla</span></div><div style="padding:18px">
+      <div class="irow">
+        <div class="fg"><label>Uzunluk (cm)</label><input type="number" id="tl" value="20" step="0.1"></div>
+        <div class="fg"><label>Genişlik (cm)</label><input type="number" id="tw" value="10" step="0.1"></div>
       </div>
-      <div class="form-group">
-        <label>Açıklama</label>
-        <input id="g-aciklama" placeholder="Gider açıklaması">
+      <div class="irow">
+        <div class="fg"><label>Süre (dk)</label><input type="number" id="ts" value="15" step="1"></div>
+        <div class="fg"><label>Malzeme (₺)</label><input type="number" id="tm" value="0" step="0.1"></div>
       </div>
-      <div class="form-group">
-        <label>Kategori</label>
-        <select id="g-kat">${opts}</select>
+      <div class="irow">
+        <div class="fg"><label>Logo (₺)</label><input type="number" id="tlo" value="0" step="0.1"></div>
+        <div class="fg"><label>Klişe (₺)</label><input type="number" id="tkl" value="0" step="0.1"></div>
       </div>
-      <div class="form-group">
-        <label>Tutar (₺)</label>
-        <input id="g-tutar" type="number" step="0.01" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label>Not (opsiyonel)</label>
-        <input id="g-not" placeholder="">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="saveGider()">Kaydet</button>
-      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
-    </div>
-  </div>`);
+      <div class="fg"><label>Kâr Marjı</label><input type="number" id="tmr" value="${s.t1_margin}" step="0.1"></div>
+      <button class="btn btn-p" style="width:100%" onclick="calcTeklif()">Hesapla</button>
+    </div></div>
+    <div class="card"><div class="ch"><span class="ct">Mevcut Ayarlar</span></div><div style="padding:16px">
+      <div class="ir"><span class="il">USD/TRY</span><span class="iv ta">${s.usd_to_tl}</span></div>
+      <div class="ir"><span class="il">Deri Fiyatı</span><span class="iv ta">${s.leather_price} $/dm²</span></div>
+      <div class="ir"><span class="il">Dakika Maliyeti</span><span class="iv ta">${s.minute_cost} ₺</span></div>
+      <div class="ir"><span class="il">Fire Katsayısı</span><span class="iv ta">${s.waste}</span></div>
+    </div></div>
+  </div>
+  <div class="card" id="teklif-result" style="display:none">
+    <div class="ch"><span class="ct">Fiyat Kademeleri</span></div>
+    <table><thead><tr><th>Adet</th><th class="tr2">Maliyet</th><th class="tr2">Birim Satış</th><th class="tr2">Toplam</th></tr></thead>
+    <tbody id="teklif-rows"></tbody></table>
+    <div id="teklif-info" style="padding:12px 16px;font-size:12px;color:var(--tx2);border-top:1px solid var(--bdr)"></div>
+  </div>`;
+}
+async function calcTeklif(){
+  const body={uzunluk:parseFloat($('tl').value),genislik:parseFloat($('tw').value),
+    sure:parseFloat($('ts').value),mat:parseFloat($('tm').value),
+    logo_tl:parseFloat($('tlo').value),klise_tl:parseFloat($('tkl').value),
+    margin:parseFloat($('tmr').value),tirajlar:[10,50,100,500,1000]};
+  const res=await api('/teklif/hesapla',{method:'POST',body});
+  $('teklif-result').style.display='block';
+  $('teklif-rows').innerHTML=res.results.map(r=>`<tr>
+    <td class="mono">${r.qty} adet</td>
+    <td class="tr2 mono td">${fmt(r.maliyet)} ₺</td>
+    <td class="tr2 mono tg" style="font-weight:600">${fmt(r.birim)} ₺</td>
+    <td class="tr2 mono ta">${fmt(r.toplam)} ₺</td>
+  </tr>`).join('');
+  $('teklif-info').innerHTML=`Alan: <strong>${res.alan} dm²</strong> · Deri Maliyeti: <strong>${fmt(res.deri_tl)} ₺</strong> · İşçilik: <strong>${fmt(res.iscilik)} ₺</strong>`;
 }
 
-async function saveGider() {
-  const body = {
-    tarih: $('g-tarih').value,
-    aciklama: $('g-aciklama').value,
-    kategori: $('g-kat').value,
-    tutar: parseFloat($('g-tutar').value),
-    note: $('g-not').value,
+// ── Baskı Merkezi ─────────────────────────────────────────────────────────────
+function renderPrint(){
+  $('content').innerHTML=`
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">🚢 Kargo Etiketi</span></div><div style="padding:18px">
+      <div class="fg"><label>Ad Soyad *</label><input id="cg-name" placeholder="Alıcı adı"></div>
+      <div class="fg"><label>Adres</label><textarea id="cg-addr" rows="2" placeholder="Tam adres"></textarea></div>
+      <div class="irow">
+        <div class="fg"><label>Şehir *</label><input id="cg-city" placeholder="İstanbul"></div>
+        <div class="fg"><label>Telefon</label><input id="cg-phone" placeholder="05xx xxx xx xx"></div>
+      </div>
+      <button class="btn btn-p" style="width:100%" onclick="printCargo()">⎙ Kargo Etiketi Yazdır</button>
+    </div></div>
+    <div class="card"><div class="ch"><span class="ct">🎁 Hediye Kartı</span></div><div style="padding:18px">
+      <div class="fg"><label>Mesaj</label><textarea id="gf-msg" rows="4" placeholder="Özel mesajınızı yazın..."></textarea></div>
+      <button class="btn btn-p" style="width:100%" onclick="printGift()">⎙ Hediye Kartı Yazdır</button>
+    </div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">📄 Fatura Yazdır</span></div><div style="padding:18px">
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:12px">Fatura sayfasından ilgili faturanın <strong style="color:var(--tx)">⎙ butonu</strong>na basarak faturayı yazdırabilirsiniz.</p>
+    <button class="btn btn-gh" onclick="document.querySelector('[data-page=invoices]').click()">→ Faturalar Sayfasına Git</button>
+  </div></div>`;
+}
+function printCargo(){
+  const n=$('cg-name').value.trim();if(!n){alert('Ad zorunlu');return;}
+  const a=encodeURIComponent($('cg-addr').value);
+  const c=encodeURIComponent($('cg-city').value);
+  const p=encodeURIComponent($('cg-phone').value);
+  window.open(`/api/print/cargo?name=${encodeURIComponent(n)}&addr=${a}&city=${c}&phone=${p}`,'_blank');
+}
+function printGift(){
+  const msg=$('gf-msg').value.trim();
+  if(!msg){alert('Mesaj girin');return;}
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#fff}
+  .page{width:148mm;min-height:210mm;margin:0 auto;background:#fff;border:1px solid #ccc;padding:0}
+  .top{border-bottom:2px solid #111;padding:14px 20px;display:flex;justify-content:space-between;align-items:flex-end}
+  .brand{font-size:20px;font-weight:600;letter-spacing:6px;color:#111}
+  .hero{padding:40px 20px;text-align:center;border-bottom:1px solid #eee}
+  .msg{font-family:'Playfair Display',serif;font-style:italic;font-size:28px;color:#111;line-height:1.6;white-space:pre-line}
+  .line{width:32px;height:1px;background:#999;margin:16px auto}
+  .sub{font-size:8px;letter-spacing:3px;color:#aaa;text-transform:uppercase}
+  .footer{padding:16px 20px;text-align:center;border-top:1px solid #eee;font-size:9px;color:#aaa;letter-spacing:2px}
+  @media print{@page{margin:0;size:A5 portrait}body{background:#fff}.page{border:none}}</style></head>
+  <body><div class="page">
+  <div class="top"><div class="brand">YEDİDERİ</div><div style="font-size:9px;letter-spacing:2px;color:#aaa;border:1px solid #ccc;padding:3px 8px">HEDİYE KARTI</div></div>
+  <div class="hero"><div class="msg">${msg.replace(/\n/g,'<br>')}</div><div class="line"></div><div class="sub">Yedideri — Hakiki Deri</div></div>
+  <div class="footer">www.yedideri.com · 0552 626 88 07 · İstanbul</div>
+  </div><script>setTimeout(()=>window.print(),500)<\/script></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+}
+
+// ── Ayarlar ───────────────────────────────────────────────────────────────────
+async function renderSettings(){
+  const s=await api('/settings');
+  $('content').innerHTML=`
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Döviz & Deri</span></div><div style="padding:18px">
+      <div class="fg"><label>USD/TRY Kuru</label><input type="number" id="s-usd" value="${s.usd_to_tl}" step="0.01"></div>
+      <div class="fg"><label>Deri Fiyatı ($/dm²)</label><input type="number" id="s-lp" value="${s.leather_price}" step="0.01"></div>
+      <div class="fg"><label>Dakika Maliyeti (₺)</label><input type="number" id="s-mc" value="${s.minute_cost}" step="0.1"></div>
+      <div class="fg"><label>Fire Katsayısı</label><input type="number" id="s-ws" value="${s.waste}" step="0.01"></div>
+    </div></div>
+    <div class="card"><div class="ch"><span class="ct">Kargo & Vergi</span></div><div style="padding:18px">
+      <div class="fg"><label>Kargo (₺)</label><input type="number" id="s-cg" value="${s.cargo}" step="0.1"></div>
+      <div class="fg"><label>Ambalaj (₺)</label><input type="number" id="s-pk" value="${s.pack}" step="0.1"></div>
+      <div class="fg"><label>KDV (%)</label><input type="number" id="s-tx" value="${s.tax}" step="0.1"></div>
+      <div class="fg"><label>Komisyon (%)</label><input type="number" id="s-cm" value="${s.comm}" step="0.1"></div>
+    </div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Kâr Kademeleri</span></div><div style="padding:18px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div><div class="fg"><label>T1 Limit (adet)</label><input type="number" id="s-t1l" value="${s.t1_limit}"></div><div class="fg"><label>T1 Marj</label><input type="number" id="s-t1m" value="${s.t1_margin}" step="0.1"></div></div>
+      <div><div class="fg"><label>T2 Limit</label><input type="number" id="s-t2l" value="${s.t2_limit}"></div><div class="fg"><label>T2 Marj</label><input type="number" id="s-t2m" value="${s.t2_margin}" step="0.1"></div></div>
+      <div><div class="fg"><label>T3 Limit</label><input type="number" id="s-t3l" value="${s.t3_limit}"></div><div class="fg"><label>T3 Marj</label><input type="number" id="s-t3m" value="${s.t3_margin}" step="0.1"></div></div>
+      <div><div class="fg" style="margin-top:22px"><label>T4 Marj (üzeri)</label><input type="number" id="s-t4m" value="${s.t4_margin}" step="0.1"></div></div>
+    </div>
+  </div></div>
+  <div style="margin-top:16px"><button class="btn btn-p" onclick="saveSettings()">💾 Ayarları Kaydet</button></div>`;
+}
+async function saveSettings(){
+  const body={
+    usd_to_tl:parseFloat($('s-usd').value),leather_price:parseFloat($('s-lp').value),
+    minute_cost:parseFloat($('s-mc').value),waste:parseFloat($('s-ws').value),
+    cargo:parseFloat($('s-cg').value),pack:parseFloat($('s-pk').value),
+    tax:parseFloat($('s-tx').value),comm:parseFloat($('s-cm').value),
+    t1_limit:parseFloat($('s-t1l').value),t1_margin:parseFloat($('s-t1m').value),
+    t2_limit:parseFloat($('s-t2l').value),t2_margin:parseFloat($('s-t2m').value),
+    t3_limit:parseFloat($('s-t3l').value),t3_margin:parseFloat($('s-t3m').value),
+    t4_margin:parseFloat($('s-t4m').value)
   };
-  if (!body.aciklama || !body.tutar) { alert('Açıklama ve tutar zorunludur'); return; }
-  await api('/gider', { method: 'POST', body });
-  closeModal();
-  await renderGider();
+  await api('/settings',{method:'POST',body});
+  alert('Ayarlar kaydedildi ✓');
+  $('usd-display').textContent=`USD/TRY: ${body.usd_to_tl} ₺`;
 }
 
-async function deleteGider(id) {
-  if (!confirm('Bu gider silinsin mi?')) return;
-  await api(`/gider/${id}`, { method: 'DELETE' });
-  await renderGider();
-}
-
-// ── Products ─────────────────────────────────────────────────────────────────
-async function renderProducts() {
-  const products = await api('/products');
-  const s = await api('/settings');
-  $('content').innerHTML = `
-    <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
-      <input id="p-search" placeholder="Ürün kodu ara..." style="max-width:220px"
-             oninput="filterProducts(this.value)">
-      <span class="text-dim" style="font-size:12px">${products.length} ürün · USD/TRY: <span class="text-gold">${s.usd_to_tl}</span></span>
-    </div>
-    <div class="card" id="products-table">
-      <table>
-        <thead><tr><th>Kod</th><th>Alan (dm²)</th><th>Süre</th><th class="text-right">Maliyet</th><th class="text-right">Satış</th><th class="text-right">Trendyol</th><th></th></tr></thead>
-        <tbody id="products-body">
-          ${products.map(p => {
-            const area = ((parseFloat(p.len)*parseFloat(p.wid))/100).toFixed(1);
-            return `<tr data-code="${p.code.toLowerCase()}">
-              <td class="mono" style="font-weight:600">${p.code}</td>
-              <td class="mono text-dim">${area}</td>
-              <td class="mono text-dim">${p.time} dk</td>
-              <td class="text-right mono">${p.base_cost ? fmt(p.base_cost) : '—'} ₺</td>
-              <td class="text-right mono text-green">${p.sales_price ? fmt(p.sales_price) : '—'} ₺</td>
-              <td class="text-right mono text-gold">${p.trendyol_price ? fmt(p.trendyol_price) : '—'} ₺</td>
-              <td><a href="${p.url||'#'}" target="_blank" class="btn btn-ghost btn-sm" ${!p.url?'style="opacity:.3;pointer-events:none"':''}>↗</a></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function filterProducts(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll('#products-body tr').forEach(tr => {
-    tr.style.display = tr.dataset.code.includes(q) ? '' : 'none';
-  });
-}
-
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
+api('/settings').then(s=>$('usd-display').textContent=`USD/TRY: ${s.usd_to_tl} ₺`).catch(()=>{});
 renderPage('dashboard');
 </script>
 </body>
