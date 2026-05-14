@@ -204,25 +204,69 @@ let allInv=[];
 async function renderInvoices(){
   allInv=await api('/invoices');
   $('tright').innerHTML=`<button class="btn btn-p sm" onclick="newInvModal()">+ Yeni Fatura</button><input id="isrch" placeholder="Ara..." style="width:160px;padding:6px 10px;font-size:12px" oninput="filterInv(this.value)">`;
-  dispInv(allInv);
+  dispInvGrouped(allInv);
 }
-function filterInv(q){q=q.toLowerCase();dispInv(allInv.filter(i=>i.id.toLowerCase().includes(q)||(i.customer_name||'').toLowerCase().includes(q)));}
-function dispInv(list){
-  $('content').innerHTML=`<div class="card"><div class="ch"><span class="ct">Faturalar (${list.length})</span></div>
-  <table><thead><tr><th>Fatura No</th><th>Müşteri</th><th>Tarih</th><th>Durum</th><th class="tr2">Toplam</th><th class="tr2">Kalan</th><th></th></tr></thead>
-  <tbody>${list.map(inv=>`<tr>
-    <td class="mono" style="font-size:12px">${inv.id}</td>
-    <td style="font-weight:500">${inv.customer_name||'—'}</td>
-    <td class="td" style="font-size:12px">${(inv.date||'').substring(0,10)}</td>
-    <td>${sbadge(inv.status)}</td>
-    <td class="tr2 mono">${fmt(inv.total)} ₺</td>
-    <td class="tr2 mono ${inv.kalan>0.01?'tr':'tg'}">${fmt(inv.kalan)} ₺</td>
-    <td style="white-space:nowrap">
-      <button class="btn btn-gh sm" onclick="invDetail('${inv.id}')">Detay</button>
-      <button class="btn btn-b sm" onclick="printInv('${inv.id}')">⎙</button>
-      ${inv.kalan>0.01?`<button class="btn btn-s sm" onclick="addPayM('${inv.id}')">+ Ödeme</button>`:''}
-    </td>
-  </tr>`).join('')}</tbody></table></div>`;
+function filterInv(q){q=q.toLowerCase();dispInvGrouped(allInv.filter(i=>i.id.toLowerCase().includes(q)||(i.customer_name||'').toLowerCase().includes(q)));}
+
+// نمایش گروه‌بندی شده فاکتورها بر اساس مشتری
+function dispInvGrouped(list){
+  const grouped={};
+  list.forEach(inv=>{
+    const cid=inv.customer_id||'unknown';
+    if(!grouped[cid]) grouped[cid]={customer:inv.customer_name||'—',invoices:[]};
+    grouped[cid].invoices.push(inv);
+  });
+  let html=`<div class="card"><div class="ch"><span class="ct">Müşteriler ve Faturalar (${Object.keys(grouped).length})</span></div>
+  <table><thead><tr><th>Müşteri</th><th>Fatura Sayısı</th><th>Son Fatura</th><th>Durum</th><th class="tr2">Toplam Borç</th><th class="tr2">Ödenen</th><th class="tr2">Kalan</th><th></th></tr></thead><tbody>`;
+  Object.keys(grouped).forEach(cid=>{
+    const g=grouped[cid];
+    const totalBorc=g.invoices.reduce((s,i)=>s+parseFloat(i.total||0),0);
+    const totalOdenen=g.invoices.reduce((s,i)=>s+parseFloat(i.paid_total||0),0);
+    const totalKalan=g.invoices.reduce((s,i)=>s+parseFloat(i.kalan||0),0);
+    const sonInv=g.invoices.sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const durum=totalKalan<=0.01?'odendi':(totalOdenen>0?'kismi':'beklemede');
+    html+=`<tr>
+      <td style="font-weight:500">${g.customer}</td>
+      <td class="mono td" style="font-size:12px">${g.invoices.length}</td>
+      <td class="td" style="font-size:12px">${sonInv?sonInv.id:'—'}</td>
+      <td>${sbadge(durum)}</td>
+      <td class="tr2 mono">${fmt(totalBorc)} ₺</td>
+      <td class="tr2 mono tg">${fmt(totalOdenen)} ₺</td>
+      <td class="tr2 mono ${totalKalan>0.01?'tr':'tg'}">${fmt(totalKalan)} ₺</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-gh sm" onclick="showCustomerInvoices('${cid}')">Faturaları Göster</button>
+        <button class="btn btn-b sm" onclick="addPayCust('${cid}')">+ Ödeme</button>
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  $('content').innerHTML=html;
+}
+
+// نمایش تمام فاکتورهای یک مشتری
+async function showCustomerInvoices(cid){
+  const invs=allInv.filter(i=>i.customer_id===cid);
+  let html=`<div class="md md-lg"><div class="mh"><span class="mt">Faturalar</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb"><table><thead><tr><th>Fatura No</th><th>Tarih</th><th>Durum</th><th class="tr2">Toplam</th><th class="tr2">Ödenen</th><th class="tr2">Kalan</th><th></th></tr></thead><tbody>`;
+  invs.forEach(inv=>{
+    html+=`<tr>
+      <td class="mono" style="font-size:12px">${inv.id}</td>
+      <td class="td" style="font-size:12px">${(inv.date||'').substring(0,10)}</td>
+      <td>${sbadge(inv.status)}</td>
+      <td class="tr2 mono">${fmt(inv.total)} ₺</td>
+      <td class="tr2 mono tg">${fmt(inv.paid_total)} ₺</td>
+      <td class="tr2 mono ${inv.kalan>0.01?'tr':'tg'}">${fmt(inv.kalan)} ₺</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-gh sm" onclick="invDetail('${inv.id}')">Detay</button>
+        <button class="btn btn-b sm" onclick="printInv('${inv.id}')">⎙</button>
+        <button class="btn btn-s sm" onclick="editInvoice('${inv.id}')">Düzenle</button>
+        ${inv.kalan>0.01?`<button class="btn btn-s sm" onclick="addPayM('${inv.id}')">+ Ödeme</button>`:''}
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>
+  <div class="mf"><button class="btn btn-gh" onclick="closeM()">Kapat</button></div></div>`;
+  showM(html);
 }
 
 async function invDetail(id){
@@ -301,7 +345,104 @@ async function savePay(id){
   const amt=parseFloat($('pa').value),note=$('pn').value;
   if(!amt||amt<=0){alert('Geçerli tutar girin');return;}
   await api(`/invoices/${id}/payment`,{method:'POST',body:{tutar:amt,note}});
-  closeM();allInv=await api('/invoices');dispInv(allInv);
+  closeM();allInv=await api('/invoices');dispInvGrouped(allInv);
+}
+
+// افزودن پرداخت برای مشتری (توزیع خودکار بین فاکتورهای باز)
+async function addPayCust(cid){
+  const invs=allInv.filter(i=>i.customer_id===cid && parseFloat(i.kalan||0)>0.01);
+  if(!invs.length){alert('این مشتری هیچ بدهی ندارد');return;}
+  const totalKalan=invs.reduce((s,i)=>s+parseFloat(i.kalan||0),0);
+  showM(`<div class="md"><div class="mh"><span class="mt">Ödeme Ekle — ${invs[0].customer_name}</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div style="background:var(--sur2);border-radius:6px;padding:12px;margin-bottom:14px;display:flex;justify-content:space-between">
+      <span class="td" style="font-size:12px">Toplam Borç</span>
+      <span class="mono tr" style="font-size:16px;font-weight:600">${fmt(totalKalan)} ₺</span>
+    </div>
+    <div class="fg"><label>Ödeme Tutarı (₺)</label><input type="number" id="pa-cust" value="${Math.floor(totalKalan)}" step="0.01"></div>
+    <div class="fg"><label>Açıklama</label><input type="text" id="pn-cust" placeholder="Nakit, EFT, vb."></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--tx3)">Bu ödeme en eski faturadan başlayarak otomatik dağıtılacaktır.</div>
+  </div>
+  <div class="mf"><button class="btn btn-p" onclick="savePayCust('${cid}')">💰 Kaydet</button><button class="btn btn-gh" onclick="closeM()">İptal</button></div>
+  </div>`);
+}
+async function savePayCust(cid){
+  const amt=parseFloat($('pa-cust').value),note=$('pn-cust').value;
+  if(!amt||amt<=0){alert('Geçerli tutar girin');return;}
+  const invs=allInv.filter(i=>i.customer_id===cid && parseFloat(i.kalan||0)>0.01).sort((a,b)=>a.date.localeCompare(b.date));
+  let kalanAmt=amt;
+  for(const inv of invs){
+    if(kalanAmt<=0)break;
+    const invKalan=parseFloat(inv.kalan||0);
+    const payment=Math.min(kalanAmt,invKalan);
+    await api(`/invoices/${inv.id}/payment`,{method:'POST',body:{tutar:payment,note:note||'Dağıtılmış ödeme'}});
+    kalanAmt-=payment;
+  }
+  closeM();allInv=await api('/invoices');dispInvGrouped(allInv);
+}
+
+// ویرایش فاکتور
+async function editInvoice(id){
+  const inv=allInv.find(i=>i.id===id);if(!inv)return;
+  const customers=await api('/customers');
+  const custOpts=customers.map(c=>`<option value="${c.id}"${c.id===inv.customer_id?' selected':''}>${c.name}</option>`).join('');
+  let itemsHtml='';
+  (inv.items||[]).forEach((it,idx)=>{
+    itemsHtml+=`<div class="item-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px">
+      <input type="hidden" class="item-code" value="${it.code||''}">
+      <input class="item-desc" placeholder="Açıklama" value="${it.desc||it.name||''}" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+      <input type="number" class="item-qty" value="${it.qty||1}" min="1" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+      <input type="number" class="item-price" value="${it.price||0}" step="0.01" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+      <button class="btn btn-d sm" onclick="this.parentElement.remove()">✕</button>
+    </div>`;
+  });
+  showM(`<div class="md md-lg"><div class="mh"><span class="mt">Fatura Düzenle — ${id}</span><button class="mx" onclick="closeM()">×</button></div>
+  <div class="mb">
+    <div class="fg"><label>Müşteri</label><select id="ei-cust">${custOpts}</select></div>
+    <div class="irow">
+      <div class="fg"><label>Tarih</label><input type="date" id="ei-date" value="${(inv.date||'').substring(0,10)}"></div>
+      <div class="fg"><label>İndirim (₺)</label><input type="number" id="ei-disc" value="${inv.discount||0}" step="0.01"></div>
+    </div>
+    <div class="fg"><label>Notlar</label><textarea id="ei-notes" rows="2">${inv.notes||''}</textarea></div>
+    <div style="margin-top:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px">Ürün Kalemleri</span>
+      <button class="btn btn-gh sm" onclick="addEditItemRow()">+ Kalem Ekle</button>
+    </div>
+    <div id="ei-items">${itemsHtml}</div>
+  </div>
+  <div class="mf">
+    <button class="btn btn-p" onclick="saveEditInv('${id}')">Kaydet</button>
+    <button class="btn btn-gh" onclick="closeM()">İptal</button>
+  </div></div>`);
+}
+function addEditItemRow(){
+  const d=$('ei-items');
+  const row=document.createElement('div');
+  row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px';
+  row.innerHTML=`
+    <input type="hidden" class="item-code" value="">
+    <input class="item-desc" placeholder="Açıklama" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+    <input type="number" class="item-qty" value="1" min="1" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+    <input type="number" class="item-price" value="0" step="0.01" style="background:var(--sur2);border:1px solid var(--bdr2);border-radius:5px;color:var(--tx);padding:9px 12px;font-size:13px">
+    <button class="btn btn-d sm" onclick="this.parentElement.remove()">✕</button>`;
+  d.appendChild(row);
+}
+async function saveEditInv(id){
+  const inv=allInv.find(i=>i.id===id);if(!inv)return;
+  const cid=$('ei-cust').value;if(!cid){alert('Müşteri seçin');return;}
+  const items=[];
+  document.querySelectorAll('#ei-items .item-row, #ei-items > div').forEach(el=>{
+    const codeEl=el.querySelector('.item-code');
+    const descEl=el.querySelector('.item-desc');
+    const qtyEl=el.querySelector('.item-qty');
+    const priceEl=el.querySelector('.item-price');
+    if(descEl&&qtyEl&&priceEl){
+      items.push({code:codeEl?codeEl.value:'',desc:descEl.value,qty:parseFloat(qtyEl.value)||1,price:parseFloat(priceEl.value)||0});
+    }
+  });
+  if(!items.length){alert('En az bir kalem ekleyin');return;}
+  await api(`/invoices/${id}`,{method:'PUT',body:{customer_id:cid,items,discount:parseFloat($('ei-disc').value)||0,payment:inv.payment||'Nakit',notes:$('ei-notes').value,date:$('ei-date').value}});
+  closeM();allInv=await api('/invoices');dispInvGrouped(allInv);
 }
 
 async function newInvModal(){
